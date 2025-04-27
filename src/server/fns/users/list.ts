@@ -68,7 +68,7 @@ export const serverFn = createServerFn({
 export const listUsers = {
   infiniteQueryOptions: (data?: ServerFnData<typeof serverFn>) =>
     infiniteQueryOptions({
-      queryKey: ["users"],
+      queryKey: ["users", data],
       queryFn: ({ pageParam: cursor }) => {
         return serverFn({
           data: {

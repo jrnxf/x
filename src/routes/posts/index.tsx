@@ -12,7 +12,6 @@ import { WrappedBadges } from "~/components/wrapped-badges";
 import { listPosts } from "~/server/fns/posts/list";
 
 export const Route = createFileRoute("/posts/")({
-  component: RouteComponent,
   validateSearch: listPosts.schema,
   loaderDeps: ({ search }) => {
     return search;
@@ -22,13 +21,11 @@ export const Route = createFileRoute("/posts/")({
       listPosts.infiniteQueryOptions(deps),
     );
   },
+  component: RouteComponent,
 });
 
 function RouteComponent() {
   const x = Route.useSearch();
-  console.log({
-    x,
-  });
   const [search, setSearch] = useQueryState("q", {
     defaultValue: "",
     throttleMs: 200,

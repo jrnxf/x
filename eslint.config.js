@@ -12,7 +12,7 @@ export default tseslint.config(
   tseslint.configs.stylistic,
   jsxA11y.flatConfigs.recommended,
   unicornPlugin.configs.recommended,
-  ...pluginRouter.configs["flat/recommended"],
+  pluginRouter.configs["flat/recommended"],
 
   {
     files: ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx"],
@@ -38,7 +38,7 @@ export default tseslint.config(
   {
     files: ["**/*.ts", "**/*.tsx"],
     rules: {
-      "@typescript-eslint/consistent-type-definitions": ["error", "type"],
+      "@typescript-eslint/consistent-type-definitions": "off",
       "@typescript-eslint/consistent-type-imports": [
         "error",
         {

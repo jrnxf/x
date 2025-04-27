@@ -1,14 +1,8 @@
 import { useSuspenseInfiniteQuery } from "@tanstack/react-query";
-import {
-  createFileRoute,
-  useLoaderDeps,
-  useSearch,
-} from "@tanstack/react-router";
+import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { ArrowDownIcon, ArrowUpIcon, FilterIcon } from "lucide-react";
-import { parseAsArrayOf, useQueryState } from "nuqs";
 import { useMemo, useState } from "react";
 import { useEventListener } from "usehooks-ts";
-import { z } from "zod";
 
 import {
   Tray,
@@ -30,9 +24,7 @@ import { UserView } from "~/views/user";
 export const Route = createFileRoute("/users/")({
   component: RouteComponent,
   validateSearch: listUsers.schema,
-  loaderDeps: ({ search }) => {
-    return search;
-  },
+  loaderDeps: ({ search }) => search,
   loader: async ({ context, deps }) => {
     await context.queryClient.ensureInfiniteQueryData(
       listUsers.infiniteQueryOptions(deps),
@@ -40,65 +32,15 @@ export const Route = createFileRoute("/users/")({
   },
 });
 
-function FiltersTray() {
-  const x = Route.useSearch();
-  const [search, setSearch] = useState("");
-  const [disciplines, setDisciplines] = useState(USER_DISCIPLINES);
-
-  return (
-    <Tray>
-      <TrayTrigger asChild>
-        <Button variant="outline">
-          Filters <FilterIcon className="size-4" />
-        </Button>
-      </TrayTrigger>
-      <TrayContent>
-        <TrayTitle>Filters</TrayTitle>
-        <div className="flex flex-col items-start gap-2">
-          <Input
-            className="max-w-[300px]"
-            id="search"
-            onChange={(evt) => setSearch(evt.target.value)}
-            placeholder="Search users"
-            value={search}
-          />
-          <MultiSelect
-            buttonLabel="Disciplines"
-            onOptionCheckedChange={(option, checked) => {
-              if (checked) {
-                setDisciplines([...disciplines, option]);
-              } else {
-                setDisciplines(disciplines.filter((d) => d !== option));
-              }
-            }}
-            options={USER_DISCIPLINES}
-            selections={disciplines}
-          />
-
-          <TrayClose asChild>
-            <Button
-              className="self-end"
-              onClick={() => {
-                setQuerySearch(search);
-                setQueryDisciplines(disciplines);
-              }}
-            >
-              Apply
-            </Button>
-          </TrayClose>
-        </div>
-      </TrayContent>
-    </Tray>
-  );
-}
-
 function RouteComponent() {
+  const searchParams = Route.useSearch();
+
   const {
     data: usersPages,
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-  } = useSuspenseInfiniteQuery(listUsers.infiniteQueryOptions());
+  } = useSuspenseInfiniteQuery(listUsers.infiniteQueryOptions(searchParams));
 
   const [selectedUserIdx, setSelectedUserIdx] = useState(-1);
 
@@ -180,6 +122,66 @@ function RouteComponent() {
         </Button>
       )}
     </div>
+  );
+}
+
+function FiltersTray() {
+  const searchParams = Route.useSearch();
+  const router = useRouter();
+
+  const [search, setSearch] = useState(searchParams.search);
+  const [disciplines, setDisciplines] = useState(searchParams.disciplines);
+
+  return (
+    <Tray>
+      <TrayTrigger asChild>
+        <Button variant="outline">
+          Filters <FilterIcon className="size-4" />
+        </Button>
+      </TrayTrigger>
+      <TrayContent>
+        <TrayTitle>Filters</TrayTitle>
+        <div className="flex flex-col items-start gap-2">
+          <Input
+            className="max-w-[300px]"
+            id="search"
+            onChange={(evt) => setSearch(evt.target.value)}
+            placeholder="Search users"
+            value={search}
+          />
+          <MultiSelect
+            buttonLabel="Disciplines"
+            onOptionCheckedChange={(option, checked) => {
+              if (checked) {
+                setDisciplines([...(disciplines ?? []), option]);
+              } else {
+                setDisciplines((disciplines ?? []).filter((d) => d !== option));
+              }
+            }}
+            options={USER_DISCIPLINES}
+            selections={disciplines ?? []}
+          />
+
+          <TrayClose asChild>
+            <Button
+              className="self-end"
+              onClick={() => {
+                router.navigate({
+                  to: "/users",
+                  search: {
+                    search,
+                    disciplines,
+                  },
+                  replace: true,
+                });
+              }}
+            >
+              Apply
+            </Button>
+          </TrayClose>
+        </div>
+      </TrayContent>
+    </Tray>
   );
 }
 
