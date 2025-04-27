@@ -1,0 +1,13 @@
+**/build
+**/public
+pnpm-lock.yaml
+routeTree.gen.ts
+
+.env
+
+
+.output
+.vinxi
+
+**/db/scripts
+**/db/skrrrt

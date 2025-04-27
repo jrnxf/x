@@ -1,0 +1,144 @@
+@import "tailwindcss";
+
+@config "../tailwind.config.ts";
+
+/* @font-face {
+  font-family: "Geist Mono Variable";
+  src: url("/fonts/geist-mono-variable.woff2") format("woff2");
+  display: swap;
+} */
+
+/*
+  The default border color has changed to `currentColor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
+
+  If we ever want to remove these styles, we need to add an explicit border
+  color utility to any element that depends on these defaults.
+*/
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentColor);
+  }
+}
+
+@layer base {
+  :root {
+    --background: var(--color-zinc-50);
+    --foreground: var(--color-zinc-950);
+
+    --card: var(--color-white);
+    --card-foreground: var(--color-zinc-950);
+
+    --popover: var(--color-white);
+    --popover-foreground: var(--color-zinc-950);
+
+    --primary: var(--color-zinc-900);
+    --primary-foreground: var(--color-zinc-50);
+
+    --secondary: var(--color-zinc-100);
+    --secondary-foreground: var(--color-zinc-900);
+
+    --muted: var(--color-zinc-100);
+    --muted-foreground: var(--color-zinc-500);
+
+    --accent: var(--color-zinc-200);
+    --accent-foreground: var(--color-zinc-900);
+
+    --destructive: var(--color-red-500);
+    --destructive-foreground: var(--color-zinc-50);
+
+    --border: var(--color-zinc-200);
+    --input: var(--color-zinc-200);
+    --ring: var(--color-zinc-950);
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  .dark {
+    --background: var(--color-black);
+    --foreground: var(--color-zinc-50);
+
+    --card: var(--color-zinc-950);
+    --card-foreground: var(--color-zinc-50);
+
+    --popover: var(--color-zinc-950);
+    --popover-foreground: var(--color-zinc-50);
+
+    --primary: var(--color-zinc-50);
+    --primary-foreground: var(--color-zinc-900);
+
+    --secondary: var(--color-zinc-900);
+    --secondary-foreground: var(--color-zinc-50);
+
+    --message: var(--color-zinc-900);
+    --message-foreground: var(--color-zinc-50);
+    --message-border: var(--color-zinc-800);
+
+    --muted: var(--color-zinc-800);
+    --muted-foreground: var(--color-zinc-400);
+
+    --accent: var(--color-zinc-700);
+    --accent-foreground: var(--color-zinc-50);
+
+    --destructive: var(--color-red-900);
+    --destructive-foreground: var(--color-zinc-50);
+
+    --border: var(--color-zinc-800);
+    --input: var(--color-zinc-800);
+    --ring: var(--color-zinc-300);
+
+    --sidebar-background: 240 6% 9%;
+    --sidebar-foreground: 240 5% 96%;
+    --sidebar-primary: 224 76% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 4% 15%;
+    --sidebar-accent-foreground: 240 5% 96%;
+    --sidebar-border: 240 4% 16%;
+    --sidebar-ring: 217 91% 60%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html,
+  body {
+    @apply bg-background text-foreground flex min-h-dvh grow flex-col font-mono;
+  }
+}
+
+/* [vaul-drawer]::after {
+  background: transparent !important;
+  background-color: transparent !important;
+} */
+
+mux-player {
+  --seek-backward-button: none;
+  --seek-forward-button: none;
+}
+
+/*
+  This will hide the focus indicator if the element receives focus via the mouse,
+  but it will still show up on keyboard focus.
+*/
+.js-focus-visible :focus:not(.focus-visible):not([autofocus]) {
+  /* :not(input):not(textarea) because i don't want it to break when I'm using
+  autoFocus attributes */
+  outline: none;
+  /* tailwind actually uses box-shadow */
+  box-shadow: none;
+}
