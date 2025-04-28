@@ -4,7 +4,19 @@ import { useAppSession } from "~/lib/session";
 
 export const serverFn = createServerFn({ method: "GET" }).handler(async () => {
   const session = await useAppSession();
-  return session.data;
+
+  // capture the flash
+  const flash = session.data.flash;
+
+  if (flash) {
+    await session.update({ flash: undefined });
+  }
+
+  return {
+    ...session.data,
+    // return the flash
+    flash,
+  };
 });
 
 export const getSession = {

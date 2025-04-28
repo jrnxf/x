@@ -1,16 +1,14 @@
-"use client";
-
-import { useTheme } from "next-themes";
-import { parseAsInteger, useQueryState } from "nuqs";
+import { useRouteContext } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { Toaster as Sonner, toast } from "sonner";
 
 type ToasterProperties = React.ComponentProps<typeof Sonner>;
 
 export function Toaster(properties: ToasterProperties) {
-  const { theme = "system" } = useTheme();
+  // const { theme = "system" } = useTheme();
+  const theme = "system";
 
-  useFlashMessageToaster();
+  useFlashToaster();
 
   return (
     <Sonner
@@ -33,26 +31,15 @@ export function Toaster(properties: ToasterProperties) {
   );
 }
 
-function useFlashMessageToaster() {
-  const [flash, setFlash] = useQueryState("flash");
-  const [flashTimeout, setFlashTimeout] = useQueryState(
-    "flashTimeout",
-    parseAsInteger.withDefault(5000),
-  );
+function useFlashToaster() {
+  const { session } = useRouteContext({ from: "__root__" });
+
   useEffect(() => {
-    if (flash) {
-      const clear = () => {
-        setFlash(null);
-        setFlashTimeout(null);
-      };
+    if (session.flash) {
       requestAnimationFrame(() => {
         // ensures the toast has a proper transition in
-        toast(flash, {
-          duration: flashTimeout,
-          onAutoClose: clear,
-          onDismiss: clear,
-        });
+        toast(session.flash);
       });
     }
-  }, [flash, setFlash, flashTimeout, setFlashTimeout]);
+  }, [session.flash]);
 }

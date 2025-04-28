@@ -12,6 +12,7 @@ import { type ReactNode } from "react";
 
 import { AuthButton, SessionJson } from "~/components/auth-button";
 import { Button } from "~/components/ui/button";
+import { Toaster } from "~/components/ui/sonner";
 import { getSession } from "~/server/fns/session/get";
 import appCss from "~/styles.css?url";
 
@@ -19,7 +20,9 @@ export const Route = createRootRouteWithContext<{
   queryClient: QueryClient;
 }>()({
   beforeLoad: async () => {
+    console.log("before load enter");
     const session = await getSession.serverFn();
+    console.log("before load exit", session);
     return { session };
   },
   component: RootComponent,
@@ -65,6 +68,7 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
       </head>
       <body className="dark">
         <NuqsAdapter>
+          {/* <ScrollBottomProvider> */}
           <nav className="sticky top-0 z-10 flex w-full items-center gap-2 border-b bg-white px-4 py-1.5 dark:bg-[#0a0a0a]">
             <Button asChild variant="ghost">
               <Link className="[&.active]:bg-secondary" to="/chat">
@@ -90,6 +94,8 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
             <AuthButton />
           </nav>
           {children}
+          <Toaster />
+          {/* </ScrollBottomProvider> */}
         </NuqsAdapter>
         <ReactQueryDevtools buttonPosition="bottom-left" />
         <Scripts />

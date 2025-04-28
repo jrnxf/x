@@ -1,14 +1,17 @@
-import Link from "next/link";
+import { Link } from "@tanstack/react-router";
 
-import type { RouterOutputs } from "~/trpc/react";
-
-type Message = RouterOutputs["messages"]["list"][number]; // TODO move this to a common place
-
-export function MessageAuthor({ message }: { message: Message }) {
+export function MessageAuthor({
+  message,
+}: {
+  message: { user: { id: number; name: string } };
+}) {
   return (
     <Link
       className="bg-background ring-offset-background focus-visible:ring-ring mb-1 w-max rounded-md font-medium focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-hidden"
-      href={`/users/${message.user.id}`}
+      to={`/users/$userId`}
+      params={{
+        userId: message.user.id,
+      }}
     >
       {message.user.name}
     </Link>

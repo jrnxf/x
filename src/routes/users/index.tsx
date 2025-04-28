@@ -1,5 +1,5 @@
 import { useSuspenseInfiniteQuery } from "@tanstack/react-query";
-import { createFileRoute, useRouter } from "@tanstack/react-router";
+import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { ArrowDownIcon, ArrowUpIcon, FilterIcon } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useEventListener } from "usehooks-ts";
@@ -73,46 +73,32 @@ function RouteComponent() {
         )}
         {users.map((user, idx) => {
           return (
-            <Tray key={user.id}>
-              <TrayTrigger asChild>
-                <button
-                  className={cn(
-                    "w-full space-y-2 rounded-md border bg-white p-3 text-left dark:bg-[#0a0a0a]",
-                    "ring-offset-background",
-                    "focus-visible:ring-ring focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-hidden",
-                  )}
-                  data-user-name={user.name}
-                  onClick={() => selectUser(idx)}
-                >
-                  <div className="flex items-center gap-2">
-                    <Avatar className="size-6 rounded-full">
-                      <AvatarImage alt={user.name} src={user.avatarUrl} />
-                      <AvatarFallback className="text-xs" name={user.name} />
-                    </Avatar>
-                    <p className="truncate text-base">{user.name}</p>
-                  </div>
-                  {user.bio && (
-                    <p className="text-muted-foreground line-clamp-3 text-sm">
-                      {user.bio}
-                    </p>
-                  )}
+            <Link
+              to="/users/$userId"
+              params={{ userId: user.id }}
+              className={cn(
+                "w-full space-y-2 rounded-md border bg-white p-3 text-left dark:bg-[#0a0a0a]",
+                "ring-offset-background",
+                "focus-visible:ring-ring focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-hidden",
+              )}
+              data-user-name={user.name}
+              onClick={() => selectUser(idx)}
+            >
+              <div className="flex items-center gap-2">
+                <Avatar className="size-6 rounded-full">
+                  <AvatarImage alt={user.name} src={user.avatarUrl} />
+                  <AvatarFallback className="text-xs" name={user.name} />
+                </Avatar>
+                <p className="truncate text-base">{user.name}</p>
+              </div>
+              {user.bio && (
+                <p className="text-muted-foreground line-clamp-3 text-sm">
+                  {user.bio}
+                </p>
+              )}
 
-                  <WrappedBadges content={user.disciplines} />
-                </button>
-              </TrayTrigger>
-              <TrayContent
-                className="h-[90dvh] w-full sm:max-w-3xl"
-                iconButtonSlot={
-                  <UpDownArrows
-                    goToNext={goToNextUser}
-                    goToPrevious={goToPreviousUser}
-                  />
-                }
-              >
-                <TrayTitle className="sr-only">{selectedUser?.name}</TrayTitle>
-                {selectedUser && <UserView user={selectedUser} />}
-              </TrayContent>
-            </Tray>
+              <WrappedBadges content={user.disciplines} />
+            </Link>
           );
         })}
       </div>

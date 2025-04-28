@@ -1,8 +1,9 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 import { z } from "zod";
 
 import { getPost } from "~/server/fns/posts/get";
+import { setFlash } from "~/server/fns/session/flash/set";
 import { PostView } from "~/views/post";
 
 const pathParametersSchema = z.object({
@@ -15,7 +16,14 @@ export const Route = createFileRoute("/posts/$postId/")({
     parse: pathParametersSchema.parse,
   },
   loader: async ({ context, params: { postId } }) => {
-    await context.queryClient.ensureQueryData(getPost.queryOptions({ postId }));
+    const post = await context.queryClient.ensureQueryData(
+      getPost.queryOptions({ postId }),
+    );
+
+    if (!post) {
+      await setFlash.serverFn({ data: "Post not found" });
+      throw redirect({ to: "/posts" });
+    }
   },
 });
 

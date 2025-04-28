@@ -7,8 +7,10 @@ import { createFileRoute, redirect, useRouter } from "@tanstack/react-router";
 import { z } from "zod";
 
 import { PostForm } from "~/components/forms/post";
+import { useAppSession } from "~/lib/session";
 import { getPost } from "~/server/fns/posts/get";
 import { updatePost } from "~/server/fns/posts/update";
+import { setFlash } from "~/server/fns/session/flash/set";
 
 const pathParametersSchema = z.object({
   postId: z.coerce.number(),
@@ -24,9 +26,11 @@ export const Route = createFileRoute("/posts/$postId/edit")({
       getPost.queryOptions({ postId }),
     );
     if (!post) {
+      await setFlash.serverFn({ data: "Post not found" });
       throw redirect({ to: "/posts" });
     }
     if (post.userId !== context.session.user?.id) {
+      await setFlash.serverFn({ data: "Access denied" });
       throw redirect({ to: "/posts" });
     }
   },

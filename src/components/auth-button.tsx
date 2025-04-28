@@ -13,7 +13,6 @@ import {
 } from "~/components/ui/dropdown-menu";
 import { Json } from "~/lib/dx/json";
 import { logout } from "~/server/fns/auth/logout";
-import { getSession } from "~/server/fns/session/get";
 
 export function AuthButton() {
   const {
@@ -21,8 +20,6 @@ export function AuthButton() {
   } = useRouteContext({ from: "__root__" });
 
   const handleLogout = useServerFn(logout.serverFn);
-
-  // const { setTheme } = useTheme();
 
   if (!user) {
     return (
@@ -110,12 +107,5 @@ export function AuthButton() {
 export function SessionJson() {
   const { session } = useRouteContext({ from: "__root__" });
 
-  return (
-    <>
-      <Button onClick={() => getSession.serverFn().then(console.log)}>
-        log current session
-      </Button>
-      <Json data={session} />
-    </>
-  );
+  return <Json data={session} />;
 }
