@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import { Link } from "@tanstack/react-router";
 
 import type { LikeableEntity } from "~/models/likes";
 
@@ -74,7 +74,9 @@ function LikesSection({ entity }: { entity: LikeableEntity }) {
           size="sm"
           variant="link"
         >
-          <Link href={`/users/${like.user.id}`}>{like.user.name}</Link>
+          <Link to="/users/$userId" params={{ userId: like.user.id }}>
+            {like.user.name}
+          </Link>
         </Button>
       ))}
     </div>

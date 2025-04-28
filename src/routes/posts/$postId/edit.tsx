@@ -7,7 +7,6 @@ import { createFileRoute, redirect, useRouter } from "@tanstack/react-router";
 import { z } from "zod";
 
 import { PostForm } from "~/components/forms/post";
-import { useAppSession } from "~/lib/session";
 import { getPost } from "~/server/fns/posts/get";
 import { updatePost } from "~/server/fns/posts/update";
 import { setFlash } from "~/server/fns/session/flash/set";

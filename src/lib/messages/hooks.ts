@@ -1,4 +1,4 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouteContext } from "@tanstack/react-router";
 // import { toast } from "sonner";
 
@@ -71,49 +71,51 @@ export function useCreateMessage(entity: MessageEnabledEntity) {
   };
 }
 
-// export function useUpdateMessage(
-//   entity: MessageEnabledEntity,
-//   args: Pick<ProcedureOptions["messages"]["update"], "onSuccess">,
-// ) {
-//   const { sessionUser } = useAuth();
-//   const utils = api.useUtils();
+export function useUpdateMessage(
+  entity: MessageEnabledEntity,
+  args: Pick<ProcedureOptions["messages"]["update"], "onSuccess">,
+) {
+  const { session } = useRouteContext({ from: "__root__" });
 
-//   return api.messages.update.useMutation<{
-//     previousData: ReturnType<typeof utils.messages.list.getData>;
-//   }>({
-//     onError: (error, _message, ctx) => {
-//       if (ctx) {
-//         console.log(error);
-//         toast(error.message);
-//         utils.messages.list.setData(entity, ctx.previousData);
-//       }
-//     },
-//     onMutate: async (editedMessage) => {
-//       utils.messages.list.cancel();
+  const qc = useQueryClient();
+  const utils = api.useUtils();
 
-//       const previousData = utils.messages.list.getData(entity);
+  return api.messages.update.useMutation<{
+    previousData: ReturnType<typeof utils.messages.list.getData>;
+  }>({
+    onError: (error, _message, ctx) => {
+      if (ctx) {
+        console.log(error);
+        toast(error.message);
+        utils.messages.list.setData(entity, ctx.previousData);
+      }
+    },
+    onMutate: async (editedMessage) => {
+      utils.messages.list.cancel();
 
-//       utils.messages.list.setData(entity, (prev) => {
-//         if (prev && sessionUser) {
-//           return prev.map((message) => {
-//             if (message.id === editedMessage.entityId) {
-//               return {
-//                 ...message,
-//                 content: editedMessage.content,
-//               };
-//             }
+      const previousData = utils.messages.list.getData(entity);
 
-//             return message;
-//           });
-//         }
-//       });
+      utils.messages.list.setData(entity, (prev) => {
+        if (prev && sessionUser) {
+          return prev.map((message) => {
+            if (message.id === editedMessage.entityId) {
+              return {
+                ...message,
+                content: editedMessage.content,
+              };
+            }
 
-//       return { previousData };
-//     },
-//     onSettled: () => utils.messages.list.invalidate(),
-//     ...args,
-//   });
-// }
+            return message;
+          });
+        }
+      });
+
+      return { previousData };
+    },
+    onSettled: () => utils.messages.list.invalidate(),
+    ...args,
+  });
+}
 
 // export function useDeleteMessage(
 //   entity: MessageEnabledEntity,

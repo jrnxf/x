@@ -1,7 +1,6 @@
 "use client";
 
 import { Loader2Icon, TrashIcon } from "lucide-react";
-import Image from "next/image";
 import { useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone-esm";
 
@@ -60,17 +59,13 @@ export const ImageInput = ({
     <div className="h-28">
       {previewSource ? (
         <div className="group relative flex size-28 shrink-0 items-center justify-center">
-          {}
-          <Image
-            alt={""}
+          <img
+            alt=""
             className={cn(
               "size-full rounded-full object-cover",
               pendingImageUpload && "opacity-30",
             )}
-            height={112}
-            quality={80}
             src={previewSource}
-            width={112}
           />
           {pendingImageUpload ? (
             <div className="bg-opacity-50 absolute inset-0 flex h-full items-center justify-center rounded-full bg-zinc-900 text-white">

@@ -2,10 +2,10 @@ import { createServerFn } from "@tanstack/react-start";
 
 import { db } from "~/db";
 import { chatMessages, postMessages } from "~/db/schema";
-import { createEditMessageSchema } from "~/server/fns/messages/shared";
+import { createUpdateMessageSchema } from "~/server/fns/messages/shared";
 import { authMiddleware } from "~/server/middleware/auth";
 
-const schema = createEditMessageSchema;
+const schema = createUpdateMessageSchema;
 
 const serverFn = createServerFn({
   method: "POST",

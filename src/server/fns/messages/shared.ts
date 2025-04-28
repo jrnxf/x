@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { chatMessages, postMessages } from "~/db/schema";
 
 export const messageEnabledEntities = ["post", "chat"] as const;
 
@@ -15,7 +16,20 @@ export const baseMessageSchema = z.object({
 
 export type MessageEnabledEntity = z.infer<typeof baseMessageSchema>;
 
-export const createEditMessageSchema = z.intersection(
+export type RecordWithMessagesType = MessageEnabledEntity["type"];
+
+export const createUpdateMessageSchema = z.intersection(
   messageFormSchema,
   baseMessageSchema,
 );
+
+export const getTableByType = (type: RecordWithMessagesType) => {
+  const table =
+    type === "post" ? postMessages : type === "chat" ? chatMessages : undefined;
+
+  if (!table) {
+    throw new Error(`Invalid type: ${type}`);
+  }
+
+  return table;
+};

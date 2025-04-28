@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import { Link } from "@tanstack/react-router";
 import { useState } from "react";
 
 import { Button } from "~/components/ui/button";
@@ -88,7 +88,7 @@ export function MagicNav() {
             size="sm-default"
             variant="unstyled"
           >
-            <Link href={to}>{label}</Link>
+            <Link to={to}>{label}</Link>
           </Button>
         ))}
       </div>

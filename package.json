@@ -9,7 +9,8 @@
     "build": "vinxi build",
     "start": "export $(grep -v '^#' .env | xargs) && vinxi start",
     "lint": "eslint src --fix",
-    "format": "prettier --write \"**/*.{tsx,tx,md,json,yml}\""
+    "format": "prettier --write \"**/*.{tsx,tx,md,json,yml}\"",
+    "typecheck": "tsc --noEmit"
   },
   "keywords": [],
   "author": "colby@jrnxf.co",
