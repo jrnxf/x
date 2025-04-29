@@ -1,4 +1,3 @@
-"use client";
 import { Loader2Icon } from "lucide-react";
 import { type FieldError, type Merge } from "react-hook-form";
 

@@ -1,8 +1,6 @@
-"use client";
-
 import { Link } from "@tanstack/react-router";
 
-import type { LikeableEntity } from "~/models/likes";
+import type { RecordWithLikes } from "~/models/likes";
 
 import { useAuth } from "~/components/auth-provider";
 import { Button } from "~/components/ui/button";
@@ -14,13 +12,13 @@ type Message = RouterOutputs["messages"]["list"][number];
 export function MessageTabs({
   // close,
   defaultValue = "reactions",
-  // entity,
+  // record,
   message,
   // tabs,
 }: {
   // close: () => void;
   defaultValue?: string;
-  // entity: MessageEnabledEntity;
+  // record: RecordWithMessages;
   message: Message;
   // tabs: {
   //   edit: {
@@ -35,13 +33,13 @@ export function MessageTabs({
     sessionUser && sessionUser.id === message.user.id,
   );
 
-  // const updateMessage = useUpdateMessage(entity, { onSuccess: close });
+  // const updateMessage = useUpdateMessage(record, { onSuccess: close });
 
   // const onUpdateMessage = (nextContent: string) => {
   //   updateMessage.mutate({
   //     content: nextContent,
-  //     entityId: message.id,
-  //     type: entity.type,
+  //     recordId: message.id,
+  //     type: record.type,
   //   });
   // };
 
@@ -52,21 +50,21 @@ export function MessageTabs({
         {isUserMessage && <TabsTrigger value="edit">Edit</TabsTrigger>}
       </TabsList>
       <TabsContent value="reactions">
-        <LikesSection entity={message} />
+        <LikesSection record={message} />
       </TabsContent>
       {isUserMessage && <TabsContent value="edit">gone</TabsContent>}
     </Tabs>
   );
 }
 
-function LikesSection({ entity }: { entity: LikeableEntity }) {
-  if (entity.likes.length === 0) {
+function LikesSection({ record }: { record: RecordWithLikes }) {
+  if (record.likes.length === 0) {
     return <p className="text-muted-foreground mt-1">No reactions</p>;
   }
 
   return (
     <div className="flex flex-col items-start">
-      {entity.likes.map((like) => (
+      {record.likes.map((like) => (
         <Button
           asChild
           className="w-max justify-start"

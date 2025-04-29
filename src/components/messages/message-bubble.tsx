@@ -1,36 +1,34 @@
-"use client";
-
 import { HeartIcon } from "lucide-react";
 
 import { useAuth } from "~/components/auth-provider";
 import { cn, preprocessText } from "~/lib/utils";
 import { type listMessages } from "~/server/fns/messages/list";
-import { type MessageEnabledEntity } from "~/server/fns/messages/shared";
+import { type RecordWithMessages } from "~/server/fns/messages/shared";
 import { type ServerFnReturn } from "~/server/types";
 
 type Message = ServerFnReturn<typeof listMessages.serverFn>[number];
 
 export function MessageBubble({
-  entity,
+  record,
   message,
 }: {
-  entity: MessageEnabledEntity;
+  record: RecordWithMessages;
   message: Message;
 }) {
   const { sessionUser } = useAuth();
 
-  // const likeUnlike = useLikeUnlikeMessage(entity, message.id);
-  // const deleteMessage = useDeleteMessage(entity);
+  // const likeUnlike = useLikeUnlikeMessage(record, message.id);
+  // const deleteMessage = useDeleteMessage(record);
 
   // const onDeleteMessage = () => {
-  //   deleteMessage.mutate({ entityId: message.id, type: entity.type });
+  //   deleteMessage.mutate({ recordId: message.id, type: record.type });
   // };
 
   const isUserMessage = Boolean(
     sessionUser && sessionUser.id === message.user.id,
   );
 
-  // const messageType = `${entity.type}Message` as const;
+  // const messageType = `${record.type}Message` as const;
 
   // const [isReactionsOpen, setIsReactionsOpen] = useState(false);
   // const [isEditMessageOpen, setIsEditMessageOpen] = useState(false);
@@ -63,7 +61,7 @@ export function MessageBubble({
         onLikeUnlike={(action) => {
           likeUnlike.mutate({
             action,
-            entityId: message.id,
+            recordId: message.id,
             type: messageType,
           });
         }}
@@ -79,7 +77,7 @@ export function MessageBubble({
       />
 
       <EditMessageTray
-        entity={entity}
+        record={record}
         message={message}
         onOpenChange={setIsEditMessageOpen}
         open={isEditMessageOpen}
@@ -89,12 +87,12 @@ export function MessageBubble({
 }
 
 // function EditMessageTray({
-//   entity,
+//   record,
 //   message,
 //   onOpenChange,
 //   open,
 // }: {
-//   entity: MessageEnabledEntity;
+//   record: RecordWithMessages;
 //   message: Message;
 //   onOpenChange: (open: boolean) => void;
 //   open: boolean;
@@ -107,7 +105,7 @@ export function MessageBubble({
 //       >
 //         <TrayTitle className="sr-only">Reactions</TrayTitle>
 //         <EditMessageForm
-//           entity={entity}
+//           record={record}
 //           message={message}
 //           onSuccess={() => {
 //             onOpenChange(false);

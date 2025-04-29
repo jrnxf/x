@@ -4,9 +4,9 @@ import { useRouteContext } from "@tanstack/react-router";
 
 import { createMessage } from "~/server/fns/messages/create";
 import { type Message } from "~/server/fns/messages/list";
-import { type MessageEnabledEntity } from "~/server/fns/messages/shared";
+import { type RecordWithMessages } from "~/server/fns/messages/shared";
 
-export function useCreateMessage(entity: MessageEnabledEntity) {
+export function useCreateMessage(record: RecordWithMessages) {
   const { session } = useRouteContext({ from: "__root__" });
 
   const qc = useQueryClient();
@@ -16,18 +16,18 @@ export function useCreateMessage(entity: MessageEnabledEntity) {
 
     onMutate: async (newMessage) => {
       qc.cancelQueries({
-        queryKey: ["messages", entity.type, entity.entityId],
+        queryKey: ["messages", record.type, record.recordId],
       });
 
       const previousData = qc.getQueryData<Message[]>([
         "messages",
-        entity.type,
-        entity.entityId,
+        record.type,
+        record.recordId,
       ]);
 
       if (previousData && session.user) {
         qc.setQueryData(
-          ["messages", entity.type, entity.entityId],
+          ["messages", record.type, record.recordId],
           [
             ...previousData,
             {
@@ -47,23 +47,24 @@ export function useCreateMessage(entity: MessageEnabledEntity) {
     onError: (_error, _variables, ctx) => {
       if (ctx) {
         qc.setQueryData(
-          ["messages", entity.type, entity.entityId],
+          ["messages", record.type, record.recordId],
           ctx.previousData,
         );
       }
     },
     onSettled: () => {
       qc.invalidateQueries({
-        queryKey: ["messages", entity.type, entity.entityId],
+        queryKey: ["messages", record.type, record.recordId],
       });
     },
   });
+
   return {
     ...mutation,
     mutate: (content: string) => {
       mutation.mutate({
         data: {
-          ...entity,
+          ...record,
           content,
         },
       });
@@ -72,14 +73,26 @@ export function useCreateMessage(entity: MessageEnabledEntity) {
 }
 
 export function useUpdateMessage(
-  entity: MessageEnabledEntity,
+  record: RecordWithMessages,
   args: Pick<ProcedureOptions["messages"]["update"], "onSuccess">,
 ) {
   const { session } = useRouteContext({ from: "__root__" });
 
   const qc = useQueryClient();
-  const utils = api.useUtils();
 
+  const mutation = useMutation();
+
+  return {
+    ...mutation,
+    mutate: (content: string) => {
+      mutation.mutate({
+        data: {
+          ...record,
+          content,
+        },
+      });
+    },
+  };
   return api.messages.update.useMutation<{
     previousData: ReturnType<typeof utils.messages.list.getData>;
   }>({
@@ -87,18 +100,18 @@ export function useUpdateMessage(
       if (ctx) {
         console.log(error);
         toast(error.message);
-        utils.messages.list.setData(entity, ctx.previousData);
+        utils.messages.list.setData(record, ctx.previousData);
       }
     },
     onMutate: async (editedMessage) => {
       utils.messages.list.cancel();
 
-      const previousData = utils.messages.list.getData(entity);
+      const previousData = utils.messages.list.getData(record);
 
-      utils.messages.list.setData(entity, (prev) => {
+      utils.messages.list.setData(record, (prev) => {
         if (prev && sessionUser) {
           return prev.map((message) => {
-            if (message.id === editedMessage.entityId) {
+            if (message.id === editedMessage.recordId) {
               return {
                 ...message,
                 content: editedMessage.content,
@@ -118,7 +131,7 @@ export function useUpdateMessage(
 }
 
 // export function useDeleteMessage(
-//   entity: MessageEnabledEntity,
+//   record: RecordWithMessages,
 //   args?: Pick<ProcedureOptions["messages"]["delete"], "onSuccess">,
 // ) {
 //   const utils = api.useUtils();
@@ -129,16 +142,16 @@ export function useUpdateMessage(
 //     onError: (error, _message, ctx) => {
 //       if (ctx) {
 //         toast(error.message);
-//         utils.messages.list.setData(entity, ctx.previousData);
+//         utils.messages.list.setData(record, ctx.previousData);
 //       }
 //     },
 //     onMutate: async (deletedMessage) => {
 //       utils.messages.list.cancel();
 
-//       const previousData = utils.messages.list.getData(entity);
+//       const previousData = utils.messages.list.getData(record);
 
-//       utils.messages.list.setData(entity, (prev = []) => {
-//         return prev.filter((message) => message.id !== deletedMessage.entityId);
+//       utils.messages.list.setData(record, (prev = []) => {
+//         return prev.filter((message) => message.id !== deletedMessage.recordId);
 //       });
 
 //       return { previousData };
@@ -149,7 +162,7 @@ export function useUpdateMessage(
 // }
 
 // export function useLikeUnlikeMessage(
-//   entity: MessageEnabledEntity,
+//   record: RecordWithMessages,
 //   messageId: number,
 // ) {
 //   const { sessionUser } = useAuth();
@@ -160,15 +173,15 @@ export function useUpdateMessage(
 //   }>({
 //     onError: (_error, _newLikeUnlike, ctx) => {
 //       if (ctx) {
-//         utils.messages.list.setData(entity, ctx.previousData);
+//         utils.messages.list.setData(record, ctx.previousData);
 //       }
 //     },
 //     onMutate: (data) => {
 //       utils.messages.list.cancel();
 
-//       const previousData = utils.messages.list.getData(entity);
+//       const previousData = utils.messages.list.getData(record);
 
-//       utils.messages.list.setData(entity, (prev = []) => {
+//       utils.messages.list.setData(record, (prev = []) => {
 //         return prev.map((message) => {
 //           if (sessionUser && message.id === messageId) {
 //             if (data.action === "like") {

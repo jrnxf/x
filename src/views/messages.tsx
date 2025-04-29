@@ -7,17 +7,17 @@ import { MessageBubble } from "~/components/messages/message-bubble";
 import { useScroll } from "~/lib/use-scroll";
 import { cn } from "~/lib/utils";
 import { type listMessages } from "~/server/fns/messages/list";
-import { type MessageEnabledEntity } from "~/server/fns/messages/shared";
+import { type RecordWithMessages } from "~/server/fns/messages/shared";
 import { type ServerFnReturn } from "~/server/types";
 
 type Message = ServerFnReturn<typeof listMessages.serverFn>[number];
 
 export function MessagesView({
-  entity,
+  record,
   messages,
   onMessageCreated,
 }: {
-  entity: MessageEnabledEntity;
+  record: RecordWithMessages;
   messages: Message[];
   onMessageCreated: (newMessage: string) => void;
 }) {
@@ -95,7 +95,7 @@ export function MessagesView({
               <div
                 className={cn("flex w-full", isUserMessage && "justify-end")}
               >
-                <MessageBubble entity={entity} message={message} />
+                <MessageBubble record={record} message={message} />
               </div>
             </div>
           );

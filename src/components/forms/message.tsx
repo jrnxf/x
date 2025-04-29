@@ -91,18 +91,18 @@ export function BaseMessageForm({
 }
 
 // export function EditMessageForm({
-//   entity,
+//   record,
 //   message,
 //   onSuccess,
 // }: {
-//   entity: MessageEnabledEntity;
+//   record: RecordWithMessages;
 //   message: {
 //     content: string;
 //     id: number;
 //   };
 //   onSuccess?: () => void;
 // }) {
-//   const updateMessage = useUpdateMessage(entity, {
+//   const updateMessage = useUpdateMessage(record, {
 //     onSuccess: () => {
 //       onSuccess?.();
 //     },
@@ -111,8 +111,8 @@ export function BaseMessageForm({
 //   const onUpdateMessage = (nextContent: string) => {
 //     updateMessage.mutate({
 //       content: nextContent,
-//       entityId: message.id,
-//       type: entity.type,
+//       recordId: message.id,
+//       type: record.type,
 //     });
 //   };
 

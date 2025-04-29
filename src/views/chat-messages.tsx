@@ -7,18 +7,18 @@ import { MessagesView } from "~/views/messages";
 export function ChatMessagesView() {
   const { data: chatMessages } = useSuspenseQuery(
     listMessages.queryOptions({
-      entityId: -1,
+      recordId: -1,
       type: "chat",
     }),
   );
 
   const { mutate: createChatMessage } = useCreateMessage({
-    entityId: -1,
+    recordId: -1,
     type: "chat",
   });
   return (
     <MessagesView
-      entity={{ entityId: -1, type: "chat" }}
+      record={{ recordId: -1, type: "chat" }}
       messages={chatMessages}
       onMessageCreated={createChatMessage}
     />

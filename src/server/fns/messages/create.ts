@@ -15,14 +15,14 @@ const serverFn = createServerFn({
   .handler(async ({ context, data }) => {
     const userId = context.user.id;
 
-    const { content, entityId, type } = data;
+    const { content, recordId: recordId, type } = data;
 
     if (type === "post") {
       return await db
         .insert(postMessages)
         .values({
           content,
-          postId: entityId,
+          postId: recordId,
           userId,
         })
         .returning();

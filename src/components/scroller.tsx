@@ -1,5 +1,3 @@
-"use client";
-
 import useMergedRef from "@react-hook/merged-ref";
 import React, { useEffect, useRef, useState } from "react";
 

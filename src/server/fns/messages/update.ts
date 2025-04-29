@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { eq } from "drizzle-orm";
+import invariant from "tiny-invariant";
 
 import { db } from "~/db";
 import { chatMessages, postMessages } from "~/db/schema";
@@ -19,27 +20,22 @@ const serverFn = createServerFn({
   .handler(async ({ context, data }) => {
     const userId = context.user.id;
 
-    const { content, entityId, type } = data;
+    const { content, recordId: recordId, type } = data;
 
     const table = getTableByType(type);
 
     const [messageToUpdate] = await db
       .select({ userId: table.userId })
       .from(table)
-      .where(eq(table.id, entityId));
+      .where(eq(table.id, recordId));
 
-    if (!messageToUpdate) {
-      throw new Error("Message not found");
-    }
-
-    if (messageToUpdate.userId !== userId) {
-      throw new Error("Access denied");
-    }
+    invariant(messageToUpdate, "Message not found");
+    invariant(messageToUpdate.userId === userId, "Access denied");
 
     return await db
       .update(table)
       .set({ content, userId })
-      .where(eq(table.id, entityId))
+      .where(eq(table.id, recordId))
       .returning();
   });
 

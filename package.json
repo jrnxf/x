@@ -9,6 +9,7 @@
     "build": "vinxi build",
     "start": "export $(grep -v '^#' .env | xargs) && vinxi start",
     "lint": "eslint src --fix",
+    "db:seed": "bun run src/db/scripts/wipe.ts && pnpm dlx drizzle-kit push",
     "format": "prettier --write \"**/*.{tsx,tx,md,json,yml}\"",
     "typecheck": "tsc --noEmit"
   },

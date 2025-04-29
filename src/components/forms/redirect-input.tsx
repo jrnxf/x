@@ -1,4 +1,3 @@
-"use client";
 // context https://nextjs.org/docs/messages/missing-suspense-with-csr-bailout
 
 // nextjs requires that we wrap anything that needs the useSearchParams hook in

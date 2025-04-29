@@ -1,5 +1,3 @@
-"use client";
-
 import createGlobe from "cobe";
 // import { useTheme } from "next-themes";
 import { useEffect, useRef, useState } from "react";

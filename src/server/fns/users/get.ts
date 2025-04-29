@@ -1,6 +1,7 @@
 import { queryOptions } from "@tanstack/react-query";
 import { createServerFn } from "@tanstack/react-start";
 import { eq } from "drizzle-orm";
+import invariant from "tiny-invariant";
 import { z } from "zod";
 
 import { db } from "~/db";
@@ -46,9 +47,7 @@ export const serverFn = createServerFn({
       // .leftJoin(userDisciplines, eq(userDisciplines.userId, users.id))
       .limit(1);
 
-    if (!user) {
-      throw new Error("User not found");
-    }
+    invariant(user, "User not found");
 
     return user;
   });

@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { eq } from "drizzle-orm";
+import invariant from "tiny-invariant";
 
 import { db } from "~/db";
 import { chatMessages, postMessages } from "~/db/schema";
@@ -20,24 +21,19 @@ const serverFn = createServerFn({
   .handler(async ({ context, data }) => {
     const userId = context.user.id;
 
-    const { entityId, type } = data;
+    const { recordId: recordId, type } = data;
 
     const table = getTableByType(type);
 
     const [messageToDelete] = await db
       .select({ userId: table.userId })
       .from(table)
-      .where(eq(table.id, entityId));
+      .where(eq(table.id, recordId));
 
-    if (!messageToDelete) {
-      throw new Error("Message not found");
-    }
+    invariant(messageToDelete, "Message not found");
+    invariant(messageToDelete.userId === userId, "Access denied");
 
-    if (messageToDelete.userId !== userId) {
-      throw new Error("Access denied");
-    }
-
-    return await db.delete(table).where(eq(table.id, entityId)).returning();
+    return await db.delete(table).where(eq(table.id, recordId)).returning();
   });
 
 export const editMessage = {

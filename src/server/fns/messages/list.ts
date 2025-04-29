@@ -47,7 +47,7 @@ const serverFn = createServerFn({
     if (data.type === "post") {
       return await db.query.postMessages.findMany({
         orderBy: asc(postMessages.createdAt),
-        where: eq(postMessages.postId, data.entityId),
+        where: eq(postMessages.postId, data.recordId),
         with: {
           likes: {
             columns: {
@@ -81,7 +81,7 @@ const serverFn = createServerFn({
 export const listMessages = {
   queryOptions: (data: ServerFnData<typeof serverFn>) =>
     queryOptions({
-      queryKey: ["messages", data.type, data.entityId],
+      queryKey: ["messages", data.type, data.recordId],
       queryFn: () => serverFn({ data }),
       refetchInterval: 10_000,
     }),

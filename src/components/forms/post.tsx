@@ -1,5 +1,3 @@
-"use client";
-
 import { zodResolver } from "@hookform/resolvers/zod";
 import MuxPlayer from "@mux/mux-player-react/lazy";
 import { TrashIcon } from "lucide-react";

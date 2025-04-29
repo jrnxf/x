@@ -1,7 +1,6 @@
-"use client";
-
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState } from "react";
+import invariant from "tiny-invariant";
 
 export function MatrixText({ text }: { text: string }) {
   const [mounted, setMounted] = useState(false);
@@ -63,9 +62,7 @@ function Char({ finalChar, idx }: { finalChar: string; idx: number }) {
 const getRandomChar = () => {
   const value = CHARS[Math.floor(Math.random() * CHARS.length)];
 
-  if (!value) {
-    throw new Error(`Failed to retrieve random value from ${CHARS}`);
-  }
+  invariant(value, `Failed to retrieve random value from ${CHARS}`);
 
   return value;
 };

@@ -1,5 +1,3 @@
-"use client";
-
 import { Link, useRouteContext } from "@tanstack/react-router";
 
 import { Button } from "~/components/ui/button";
@@ -28,12 +26,12 @@ export function PostView({
   // });
 
   // const [messages] = trpc.messages.list.useSuspenseQuery(
-  //   { entityId: postId, type: "post" },
+  //   { recordId: postId, type: "post" },
   //   { initialData: initialData.messages },
   // );
 
   // const createPostMessage = useCreateMessage({
-  //   entityId: postId,
+  //   recordId: postId,
   //   type: "post",
   // });
 
@@ -111,12 +109,12 @@ export function PostView({
 
       {/* <div className="shrink-0">
         <MessagesView
-          entity={{ entityId: post.id, type: "post" }}
+          record={{ recordId: post.id, type: "post" }}
           messages={messages}
           onMessageCreated={(message) => {
             createPostMessage.mutate({
               content: message,
-              entityId: post.id,
+              recordId: post.id,
               type: "post",
             });
           }}

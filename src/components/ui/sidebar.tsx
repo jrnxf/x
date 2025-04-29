@@ -1,9 +1,8 @@
-"use client";
-
 import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
 import { PanelLeft } from "lucide-react";
 import * as React from "react";
+import invariant from "tiny-invariant";
 import { useMediaQuery } from "usehooks-ts";
 
 import { Button } from "~/components/ui/button";
@@ -40,9 +39,8 @@ const SidebarContext = React.createContext<null | SidebarContext>(null);
 
 function useSidebar() {
   const context = React.useContext(SidebarContext);
-  if (!context) {
-    throw new Error("useSidebar must be used within a SidebarProvider.");
-  }
+
+  invariant(context, "useSidebar must be used within a SidebarProvider");
 
   return context;
 }
