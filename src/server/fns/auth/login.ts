@@ -5,7 +5,7 @@ import { z } from "zod";
 
 import { db } from "~/db";
 import { users } from "~/db/schema";
-import { useAppSession } from "~/lib/session";
+import { useAppSession } from "~/server/session";
 import { baseAuthSchema } from "~/server/fns/auth/shared";
 
 export const schema = baseAuthSchema.extend({

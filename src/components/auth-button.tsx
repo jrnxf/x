@@ -1,4 +1,4 @@
-import { Link, useRouteContext } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
@@ -11,17 +11,15 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
-import { Json } from "~/lib/dx/json";
+import { useSessionUser } from "~/lib/session";
 import { logout } from "~/server/fns/auth/logout";
 
 export function AuthButton() {
-  const {
-    session: { user },
-  } = useRouteContext({ from: "__root__" });
+  const sessionUser = useSessionUser();
 
   const handleLogout = useServerFn(logout.serverFn);
 
-  if (!user) {
+  if (!sessionUser) {
     return (
       <Button asChild variant="ghost">
         <Link to="/auth/login">login</Link>
@@ -34,13 +32,13 @@ export function AuthButton() {
       <DropdownMenuTrigger className="flex items-center gap-2">
         <Avatar className="size-8">
           <AvatarImage
-            alt={`Avatar for ${user.name}`}
+            alt={`Avatar for ${sessionUser.name}`}
             className="rounded-full object-cover"
-            src={user.avatarUrl}
+            src={sessionUser.avatarUrl}
           />
           <AvatarFallback
             className="flex w-full items-center justify-center"
-            name={user.name}
+            name={sessionUser.name}
           />
         </Avatar>
       </DropdownMenuTrigger>
@@ -54,21 +52,21 @@ export function AuthButton() {
           <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
             <Avatar className="size-8">
               <AvatarImage
-                alt={`Avatar for ${user.name}`}
+                alt={`Avatar for ${sessionUser.name}`}
                 className="rounded-full object-cover"
                 height={40}
-                src={user.avatarUrl}
+                src={sessionUser.avatarUrl}
                 width={40}
               />
               <AvatarFallback
                 className="flex w-full items-center justify-center"
-                name={user.name}
+                name={sessionUser.name}
               />
             </Avatar>
             <div className="grid flex-1 text-left text-sm leading-tight">
-              <span className="truncate font-semibold">{user.name}</span>
+              <span className="truncate font-semibold">{sessionUser.name}</span>
               <span className="text-muted-foreground truncate text-xs">
-                {user.email}
+                {sessionUser.email}
               </span>
             </div>
           </div>
@@ -102,10 +100,4 @@ export function AuthButton() {
       </DropdownMenuContent>
     </DropdownMenu>
   );
-}
-
-export function SessionJson() {
-  const { session } = useRouteContext({ from: "__root__" });
-
-  return <Json data={session} />;
 }

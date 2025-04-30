@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 
-import { useServerSession } from "~/lib/session";
+import { useServerSession } from "~/server/session";
 
 export const serverFn = createServerFn({ method: "GET" }).handler(async () => {
   const session = await useServerSession();
