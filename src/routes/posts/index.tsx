@@ -63,7 +63,7 @@ function RouteComponent() {
         />
       </div> */}
 
-      <div className="sticky top-3 z-10 flex justify-end gap-2">
+      <div className="sticky top-3 z-10 self-end">
         <FiltersTray />
       </div>
       {posts.length === 0 && (
