@@ -1,6 +1,6 @@
-import { useRouteContext } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { Toaster as Sonner, toast } from "sonner";
+import { useSessionFlash } from "~/lib/session";
 
 type ToasterProperties = React.ComponentProps<typeof Sonner>;
 
@@ -32,14 +32,14 @@ export function Toaster(properties: ToasterProperties) {
 }
 
 function useFlashToaster() {
-  const { session } = useRouteContext({ from: "__root__" });
+  const sessionFlash = useSessionFlash();
 
   useEffect(() => {
-    if (session.flash) {
+    if (sessionFlash) {
       requestAnimationFrame(() => {
         // ensures the toast has a proper transition in
-        toast(session.flash);
+        toast(sessionFlash);
       });
     }
-  }, [session.flash]);
+  }, [sessionFlash]);
 }

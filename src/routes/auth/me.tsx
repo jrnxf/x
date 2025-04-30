@@ -1,10 +1,7 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
-import {
-  createFileRoute,
-  redirect,
-  useRouteContext,
-} from "@tanstack/react-router";
-
+import { createFileRoute, redirect } from "@tanstack/react-router";
+import invariant from "tiny-invariant";
+import { useSessionUser } from "~/lib/session";
 import { getUser } from "~/server/fns/users/get";
 import { UserView } from "~/views/user";
 
@@ -21,10 +18,13 @@ export const Route = createFileRoute("/auth/me")({
 });
 
 function RouteComponent() {
-  const {
-    session: { user },
-  } = useRouteContext({ from: "__root__" });
-  const { data } = useSuspenseQuery(getUser.queryOptions({ userId: user!.id }));
+  const sessionUser = useSessionUser();
+
+  invariant(sessionUser, "Authentication required");
+
+  const { data } = useSuspenseQuery(
+    getUser.queryOptions({ userId: sessionUser.id }),
+  );
 
   return <UserView user={data} />;
 }

@@ -5,7 +5,7 @@ import { z } from "zod";
 
 import { db } from "~/db";
 import { users } from "~/db/schema";
-import { useAppSession } from "~/server/session";
+import { useServerSession } from "~/server/session";
 import { baseAuthSchema } from "~/server/fns/auth/shared";
 
 export const schema = baseAuthSchema.extend({
@@ -45,7 +45,7 @@ export const serverFn = createServerFn({ method: "POST" })
     }
 
     // Create a session
-    const session = await useAppSession();
+    const session = await useServerSession();
 
     await session.update({ user });
 

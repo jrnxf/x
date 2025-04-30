@@ -1,5 +1,5 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useRouteContext } from "@tanstack/react-router";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useSessionUser } from "~/lib/session";
 // import { toast } from "sonner";
 
 import { createMessage } from "~/server/fns/messages/create";
@@ -7,7 +7,7 @@ import { type Message } from "~/server/fns/messages/list";
 import { type RecordWithMessages } from "~/server/fns/messages/shared";
 
 export function useCreateMessage(record: RecordWithMessages) {
-  const { session } = useRouteContext({ from: "__root__" });
+  const sessionUser = useSessionUser();
 
   const qc = useQueryClient();
 
@@ -25,7 +25,7 @@ export function useCreateMessage(record: RecordWithMessages) {
         record.recordId,
       ]);
 
-      if (previousData && session.user) {
+      if (previousData && sessionUser) {
         qc.setQueryData(
           ["messages", record.type, record.recordId],
           [
@@ -35,8 +35,8 @@ export function useCreateMessage(record: RecordWithMessages) {
               createdAt: new Date(),
               id: Math.random(),
               likes: [],
-              user: session.user,
-              userId: session.user.id,
+              user: sessionUser,
+              userId: sessionUser.id,
             },
           ],
         );
@@ -76,8 +76,6 @@ export function useUpdateMessage(
   record: RecordWithMessages,
   args: Pick<ProcedureOptions["messages"]["update"], "onSuccess">,
 ) {
-  const { session } = useRouteContext({ from: "__root__" });
-
   const qc = useQueryClient();
 
   const mutation = useMutation();

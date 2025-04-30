@@ -2,14 +2,12 @@
 /* eslint-disable jsx-a11y/no-noninteractive-element-interactions */
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouteContext } from "@tanstack/react-router";
 import { CornerDownLeftIcon } from "lucide-react";
 import { useForm } from "react-hook-form";
 
-import { useAuth } from "~/components/auth-provider";
-// import { LoginAndReturnButton } from "~/components/login-and-return-button";
 import { Button } from "~/components/ui/button";
 import { Textarea } from "~/components/ui/textarea";
+import { useSessionUser } from "~/lib/session";
 // import { useUpdateMessage } from "~/lib/hooks/messages";
 import {
   type MessageFormOutput,
@@ -23,7 +21,7 @@ export function BaseMessageForm({
   initialContent?: string;
   onSubmit: (content: string) => void;
 }) {
-  const { session } = useRouteContext({ from: "__root__" });
+  const sessionUser = useSessionUser();
   const { getValues, handleSubmit, register, setFocus, setValue } =
     useForm<MessageFormOutput>({
       defaultValues: {
@@ -36,7 +34,7 @@ export function BaseMessageForm({
     setValue("content", "");
   };
 
-  if (!session.user) {
+  if (!sessionUser) {
     return (
       <div className="grid place-items-center pt-3">
         <p>log in to chat</p>

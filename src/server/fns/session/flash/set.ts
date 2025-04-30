@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 
 import { z } from "zod";
-import { useAppSession } from "~/server/session";
+import { useServerSession } from "~/server/session";
 
 const schema = z.string();
 
@@ -10,7 +10,7 @@ const serverFn = createServerFn({
 })
   .validator(schema)
   .handler(async ({ data: message }) => {
-    const session = await useAppSession();
+    const session = await useServerSession();
     await session.update({ flash: message });
   });
 

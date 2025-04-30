@@ -1,9 +1,10 @@
-import { Link, useRouteContext } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router";
 
 import { Button } from "~/components/ui/button";
 import { VideoPlayer } from "~/components/video-player";
 import { WrappedBadges } from "~/components/wrapped-badges";
 import { YoutubeIframe } from "~/components/youtube-iframe";
+import { useSessionUser } from "~/lib/session";
 import { type getPost } from "~/server/fns/posts/get";
 import { type ServerFnReturn } from "~/server/types";
 
@@ -17,9 +18,7 @@ export function PostView({
   };
   postId: number;
 }) {
-  const {
-    session: { user: sessionUser },
-  } = useRouteContext({ from: "__root__" });
+  const sessionUser = useSessionUser();
 
   // const [post] = trpc.post.get.useSuspenseQuery(postId, {
   //   initialData: initialData.post,

@@ -1,10 +1,10 @@
 import { redirect } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
 
-import { useAppSession } from "~/server/session";
+import { useServerSession } from "~/server/session";
 
 const serverFn = createServerFn({ method: "POST" }).handler(async () => {
-  const session = await useAppSession();
+  const session = await useServerSession();
   await session.clear();
   throw redirect({ to: "/auth/login" });
 });

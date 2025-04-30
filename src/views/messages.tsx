@@ -4,6 +4,7 @@ import { useLayoutEffect, useRef } from "react";
 import { BaseMessageForm } from "~/components/forms/message";
 import { MessageAuthor } from "~/components/messages/message-author";
 import { MessageBubble } from "~/components/messages/message-bubble";
+import { useSessionUser } from "~/lib/session";
 import { useScroll } from "~/lib/use-scroll";
 import { cn } from "~/lib/utils";
 import { type listMessages } from "~/server/fns/messages/list";
@@ -23,7 +24,7 @@ export function MessagesView({
 }) {
   const scrollCountReference = useRef(0);
 
-  const { session } = useRouteContext({ from: "__root__" });
+  const sessionUser = useSessionUser();
 
   const { ref, scrollTo } = useScroll();
 
@@ -31,14 +32,16 @@ export function MessagesView({
   const chatMessageCount = messages.length;
 
   useLayoutEffect(() => {
-    scrollTo("bottom", Number.MAX_SAFE_INTEGER);
-  }, [scrollTo]);
-
-  useLayoutEffect(() => {
     const initialLoad = scrollCountReference.current === 0;
 
+    if (initialLoad) {
+      scrollCountReference.current++;
+      // don't scroll at the beginning
+      return;
+    }
+
     const lastMessageIsFromAuthUser =
-      session.user && session.user.id === lastChatMessageByUserId;
+      sessionUser && sessionUser.id === lastChatMessageByUserId;
 
     // if the page is just loading OR the last message submitted was from the
     // authenticated user, we should scroll to the bottom of the chat otherwise
@@ -52,9 +55,12 @@ export function MessagesView({
     // `ssr-load-scrolled-to-bottom` only works if the page is first rendered on
     // the server - in cases where the page is rendered on the client (eg
     // browser back button), we need to scroll to the bottom manually
+
+    console.log("scrolling to", threshold);
+
     scrollTo("bottom", threshold);
     scrollCountReference.current++;
-  }, [scrollTo, lastChatMessageByUserId, chatMessageCount, session.user]);
+  }, [scrollTo, lastChatMessageByUserId, chatMessageCount, sessionUser]);
 
   return (
     <>
@@ -62,19 +68,22 @@ export function MessagesView({
         <p className="text-muted-foreground mt-1">No messages</p>
       )}
       <div
-        className={cn(
-          // TODO: tanstack router's scroll restoration makes this kinda weird
-          // since the scroll restoration persists on refreshes too. I might opt
-          // to just not re-enable this but keeping it around for now. If I do re-enable,
-          // I'll need to uncomment out the ScrollBottomProvider in __root
-          // "ssr-load-scrolled-to-bottom",
-          "-mx-4 flex grow basis-0 flex-col gap-2 overflow-y-auto p-4",
-        )}
+        className="-mx-4 flex grow basis-0 flex-col gap-2 overflow-y-auto p-4"
+        // https://tanstack.com/router/latest/docs/framework/react/guide/scroll-restoration#manual-scroll-restoration
+        // I don't like the way the scroll restoration is automatically handled
+        // here because on a refresh it loads at the top of the page and then
+        // jumps to the restoration point (this may be a bug with the router) by
+        // manually setting the scroll restoration id and then never registering
+        // it with `useElementScrollRestoration` we effectively disable the
+        // router's scroll restoration for this element. interestingly,
+        // disabling the scroll restoration seems to still actually do the
+        // scroll restoration but not cause the jump mentioned above.
+        data-scroll-restoration-id={`no-scroll-restore-${record.type}-${record.recordId}`}
         ref={ref}
       >
         {messages.map((message, index) => {
           const isUserMessage = Boolean(
-            session.user && session.user.id === message.user.id,
+            sessionUser && sessionUser.id === message.user.id,
           );
 
           const isNewSection = messages[index - 1]?.user.id !== message.user.id;
