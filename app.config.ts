@@ -7,6 +7,9 @@ export default defineConfig({
   tsr: {
     appDirectory: "./src",
   },
+  server: {
+    preset: "bun",
+  },
   vite: {
     plugins: [
       tsConfigPaths({

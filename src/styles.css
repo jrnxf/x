@@ -114,11 +114,6 @@
   * {
     @apply border-border;
   }
-
-  html,
-  body {
-    @apply bg-background text-foreground flex min-h-dvh grow flex-col font-mono;
-  }
 }
 
 /* [vaul-drawer]::after {

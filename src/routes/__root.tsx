@@ -7,10 +7,9 @@ import {
   Outlet,
   Scripts,
 } from "@tanstack/react-router";
-import { NuqsAdapter } from "nuqs/adapters/react";
 import { type ReactNode } from "react";
 
-import { AuthButton, SessionJson } from "~/components/auth-button";
+import { AuthButton } from "~/components/auth-button";
 import { Button } from "~/components/ui/button";
 import { Toaster } from "~/components/ui/sonner";
 import { getSession } from "~/server/fns/session/get";
@@ -67,36 +66,32 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
         <HeadContent />
       </head>
       <body className="dark">
-        <NuqsAdapter>
-          {/* <ScrollBottomProvider> */}
-          <nav className="sticky top-0 z-10 flex w-full items-center gap-2 border-b bg-white px-4 py-1.5 dark:bg-[#0a0a0a]">
-            <Button asChild variant="ghost">
-              <Link className="[&.active]:bg-secondary" to="/chat">
-                chat
-              </Link>
-            </Button>
-            <Button asChild variant="ghost">
-              <Link className="[&.active]:bg-secondary" to="/posts">
-                posts
-              </Link>
-            </Button>
-            <Button asChild variant="ghost">
-              <Link className="[&.active]:bg-secondary" to="/users">
-                users
-              </Link>
-            </Button>
-            <Button asChild variant="ghost">
-              <Link className="[&.active]:bg-secondary" to="/games/rius/active">
-                games
-              </Link>
-            </Button>
-            <div className="grow" />
-            <AuthButton />
-          </nav>
-          {children}
-          <Toaster />
-          {/* </ScrollBottomProvider> */}
-        </NuqsAdapter>
+        <nav className="sticky top-0 z-10 flex w-full items-center gap-2 border-b bg-white px-4 py-1.5 dark:bg-[#0a0a0a]">
+          <Button asChild variant="ghost">
+            <Link className="[&.active]:bg-secondary" to="/chat">
+              chat
+            </Link>
+          </Button>
+          <Button asChild variant="ghost">
+            <Link className="[&.active]:bg-secondary" to="/posts">
+              posts
+            </Link>
+          </Button>
+          <Button asChild variant="ghost">
+            <Link className="[&.active]:bg-secondary" to="/users">
+              users
+            </Link>
+          </Button>
+          <Button asChild variant="ghost">
+            <Link className="[&.active]:bg-secondary" to="/games/rius/active">
+              games
+            </Link>
+          </Button>
+          <div className="grow" />
+          <AuthButton />
+        </nav>
+        {children}
+        <Toaster />
         <ReactQueryDevtools buttonPosition="bottom-left" />
         <Scripts />
       </body>

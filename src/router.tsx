@@ -18,10 +18,11 @@ export function createRouter() {
       context: { queryClient },
       defaultErrorComponent: CatchBoundary,
       defaultNotFoundComponent: () => <NotFound />,
-      // defaultPreload: "intent",
-      defaultPreload: false,
+      defaultPreload: "intent",
       routeTree,
       scrollRestoration: true,
+      // scroll to top of main tag in addition to window
+      scrollToTopSelectors: ["main"],
     }),
     queryClient,
   );

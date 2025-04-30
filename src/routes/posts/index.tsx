@@ -1,8 +1,7 @@
 import { useSuspenseInfiniteQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { HeartIcon, MessageCircleIcon, PaperclipIcon } from "lucide-react";
-import { useQueryState } from "nuqs";
-import { startTransition, useDeferredValue, useMemo } from "react";
+import { startTransition, useDeferredValue, useMemo, useState } from "react";
 
 import { TimeAgo } from "~/components/time-ago";
 import { Button } from "~/components/ui/button";
@@ -26,11 +25,7 @@ export const Route = createFileRoute("/posts/")({
 
 function RouteComponent() {
   const x = Route.useSearch();
-  const [search, setSearch] = useQueryState("q", {
-    defaultValue: "",
-    throttleMs: 200,
-  });
-
+  const [search, setSearch] = useState("");
   const deferredSearch = useDeferredValue(search);
 
   const {
