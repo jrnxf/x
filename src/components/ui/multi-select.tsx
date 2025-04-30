@@ -32,7 +32,7 @@ export function MultiSelect<T extends string>({
     <Popover>
       <PopoverTrigger asChild>
         <Button
-          className="w-[200px] justify-between"
+          className="w-full justify-between"
           role="combobox"
           size="lg"
           variant="outline"
@@ -46,7 +46,7 @@ export function MultiSelect<T extends string>({
           <ChevronsUpDown className="size-4 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[200px] p-0">
+      <PopoverContent className="w-full p-0">
         <Command>
           <CommandInput placeholder="Filter..." />
           <CommandList>

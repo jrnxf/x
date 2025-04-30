@@ -10,7 +10,7 @@ import { type ServerFnData } from "~/server/types";
 const schema = z.object({
   cursor: z.number().nullish(),
   limit: z.number().min(25).max(50).optional(),
-  search: z.string().optional(),
+  q: z.string().optional(),
 });
 
 const serverFn = createServerFn({
@@ -48,9 +48,9 @@ const serverFn = createServerFn({
       .where(
         and(
           or(
-            data.search ? ilike(posts.title, `%${data.search}%`) : undefined,
-            data.search ? ilike(posts.content, `%${data.search}%`) : undefined,
-            data.search ? ilike(users.name, `%${data.search}%`) : undefined,
+            data.q ? ilike(posts.title, `%${data.q}%`) : undefined,
+            data.q ? ilike(posts.content, `%${data.q}%`) : undefined,
+            data.q ? ilike(users.name, `%${data.q}%`) : undefined,
           ),
 
           data.cursor ? lt(posts.id, data.cursor) : undefined,
@@ -65,7 +65,7 @@ const serverFn = createServerFn({
 export const listPosts = {
   infiniteQueryOptions: (data: ServerFnData<typeof serverFn>) =>
     infiniteQueryOptions({
-      queryKey: ["posts"],
+      queryKey: ["posts", data],
       queryFn: async ({ pageParam: cursor }) => {
         return await serverFn({
           data: {

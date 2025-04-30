@@ -20,7 +20,7 @@ const serverFn = createServerFn({
   .handler(async ({ context, data }) => {
     const userId = context.user.id;
 
-    const { content, recordId: recordId, type } = data;
+    const { content, recordId, type } = data;
 
     const table = getTableByType(type);
 

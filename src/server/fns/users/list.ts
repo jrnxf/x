@@ -16,7 +16,7 @@ export const schema = z.object({
   cursor: z.number().nullish(),
   disciplines: z.array(z.enum(USER_DISCIPLINES)).optional(),
   limit: z.number().min(25).max(50).optional(),
-  search: z.string().optional(),
+  q: z.string().optional(),
 });
 
 export const serverFn = createServerFn({
@@ -52,7 +52,7 @@ export const serverFn = createServerFn({
       .leftJoin(userSocials, eq(userSocials.userId, users.id))
       .where(
         and(
-          data.search ? ilike(users.name, `%${data.search}%`) : undefined,
+          data.q ? ilike(users.name, `%${data.q}%`) : undefined,
           data.disciplines && data.disciplines.length > 0
             ? sql`${users.disciplines}::jsonb @> ${sql.raw(
                 `'${JSON.stringify(data.disciplines)}'`,

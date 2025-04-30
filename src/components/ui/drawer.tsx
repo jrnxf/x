@@ -4,7 +4,9 @@ import { Drawer as DrawerPrimitive } from "vaul";
 
 import { cn } from "~/lib/utils";
 
-const Drawer = DrawerPrimitive.Root;
+const Drawer = (props: React.ComponentProps<typeof DrawerPrimitive.Root>) => (
+  <DrawerPrimitive.Root shouldScaleBackground {...props} />
+);
 
 const DrawerTrigger = DrawerPrimitive.Trigger;
 
@@ -28,30 +30,36 @@ const DrawerContent = React.forwardRef<
   React.ElementRef<typeof DrawerPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof DrawerPrimitive.Content> & {
     iconButtonSlot?: React.ReactNode;
+    overlay?: boolean;
   }
->(({ children, className, iconButtonSlot, ...properties }, reference) => (
-  <DrawerPortal>
-    <DrawerOverlay />
-    <DrawerPrimitive.Content
-      className={cn(
-        "bg-background fixed inset-x-0 bottom-0 z-50 mx-auto mt-24 flex h-auto max-w-[98dvw] flex-col rounded-t-[10px] border",
-        className,
-      )}
-      ref={reference}
-      {...properties}
-    >
-      <div className="bg-muted mx-auto mt-4 h-2 w-[100px] rounded-full" />
-      <FocusLock className="flex grow flex-col" returnFocus={true}>
-        {iconButtonSlot && (
-          <div className="absolute top-4 right-4 flex items-center gap-2">
-            {iconButtonSlot}
-          </div>
+>(
+  (
+    { children, className, iconButtonSlot, overlay = true, ...properties },
+    reference,
+  ) => (
+    <DrawerPortal>
+      {overlay && <DrawerOverlay />}
+      <DrawerPrimitive.Content
+        className={cn(
+          "bg-background fixed inset-x-0 bottom-0 z-50 mx-auto mt-24 flex h-auto max-w-[98dvw] flex-col rounded-t-[10px] border",
+          className,
         )}
-        {children}
-      </FocusLock>
-    </DrawerPrimitive.Content>
-  </DrawerPortal>
-));
+        ref={reference}
+        {...properties}
+      >
+        <div className="bg-muted mx-auto mt-4 h-2 w-[100px] rounded-full" />
+        <FocusLock className="flex grow flex-col gap-4" returnFocus={true}>
+          {iconButtonSlot && (
+            <div className="absolute top-4 right-4 flex items-center gap-2">
+              {iconButtonSlot}
+            </div>
+          )}
+          {children}
+        </FocusLock>
+      </DrawerPrimitive.Content>
+    </DrawerPortal>
+  ),
+);
 DrawerContent.displayName = "DrawerContent";
 
 const DrawerHeader = ({

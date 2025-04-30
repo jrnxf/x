@@ -1,6 +1,7 @@
 import { HeartIcon } from "lucide-react";
 
 import { useAuth } from "~/components/auth-provider";
+import { Tray, TrayContent, TrayTrigger } from "~/components/tray";
 import { cn, preprocessText } from "~/lib/utils";
 import { type listMessages } from "~/server/fns/messages/list";
 import { type RecordWithMessages } from "~/server/fns/messages/shared";
@@ -35,27 +36,29 @@ export function MessageBubble({
   // const reactionsTriggerReference = useRef<HTMLButtonElement>(null);
 
   return (
-    <div
-      className="relative flex w-max max-w-[80%] items-center gap-1 rounded-md border bg-white px-3 py-2 text-left text-sm font-normal whitespace-pre-wrap dark:bg-[#0a0a0a]"
-      style={{ wordBreak: "break-word" }}
-    >
-      {message.likes.length > 0 && (
-        <div
-          className={cn(
-            "absolute top-0 flex -translate-y-1/2 items-center rounded-xl bg-red-600 px-1.5 text-xs text-[10px] text-white",
-            isUserMessage
-              ? "left-0 -translate-x-1/3"
-              : "right-0 translate-x-1/3",
-          )}
+    <Tray>
+      <TrayTrigger asChild>
+        <button
+          className="relative flex w-max max-w-[80%] items-center gap-1 rounded-md border bg-white px-3 py-2 text-left text-sm font-normal whitespace-pre-wrap dark:bg-[#0a0a0a]"
+          style={{ wordBreak: "break-word" }}
         >
-          <HeartIcon className="mr-1 size-2 fill-white" />
-          {message.likes.length}
-        </div>
-      )}
+          {message.likes.length > 0 && (
+            <div
+              className={cn(
+                "absolute top-0 flex -translate-y-1/2 items-center rounded-xl bg-red-600 px-1.5 text-xs text-[10px] text-white",
+                isUserMessage
+                  ? "left-0 -translate-x-1/3"
+                  : "right-0 translate-x-1/3",
+              )}
+            >
+              <HeartIcon className="mr-1 size-2 fill-white" />
+              {message.likes.length}
+            </div>
+          )}
 
-      <p className="leading-relaxed">{preprocessText(message.content)}</p>
+          <p className="leading-relaxed">{preprocessText(message.content)}</p>
 
-      {/* <RecordOptions
+          {/* <RecordOptions
         onDeleteRecord={onDeleteMessage}
         onEditRecord={() => setIsEditMessageOpen(true)}
         onLikeUnlike={(action) => {
@@ -63,26 +66,31 @@ export function MessageBubble({
             action,
             recordId: message.id,
             type: messageType,
-          });
-        }}
-        onShowReactions={() => setIsReactionsOpen(true)}
-        record={message}
-      />
-
-      <ReactionsTray
-        message={message}
-        onOpenChange={setIsReactionsOpen}
-        open={isReactionsOpen}
-        triggerRef={reactionsTriggerReference}
-      />
-
-      <EditMessageTray
-        record={record}
-        message={message}
-        onOpenChange={setIsEditMessageOpen}
-        open={isEditMessageOpen}
-      /> */}
-    </div>
+            });
+            }}
+            onShowReactions={() => setIsReactionsOpen(true)}
+            record={message}
+            />
+            
+            <ReactionsTray
+            message={message}
+            onOpenChange={setIsReactionsOpen}
+            open={isReactionsOpen}
+            triggerRef={reactionsTriggerReference}
+            />
+            
+            <EditMessageTray
+            record={record}
+            message={message}
+            onOpenChange={setIsEditMessageOpen}
+            open={isEditMessageOpen}
+            /> */}
+        </button>
+      </TrayTrigger>
+      <TrayContent>
+        <p className="leading-relaxed">{preprocessText(message.content)}</p>
+      </TrayContent>
+    </Tray>
   );
 }
 

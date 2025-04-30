@@ -1,6 +1,4 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import MuxPlayer from "@mux/mux-player-react/lazy";
-import { TrashIcon } from "lucide-react";
 import { useState } from "react";
 import {
   Controller,
@@ -10,15 +8,12 @@ import {
 } from "react-hook-form";
 
 import { BadgeInput } from "~/components/badge-input";
-import { ImageOrVideoInput } from "~/components/image-or-video-input";
-import { Button } from "~/components/ui/button";
 import { FormMessage, FormSubmitButton } from "~/components/ui/form";
 import { FormOpsProvider } from "~/components/ui/form-ops-provider";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "~/components/ui/radio-group";
 import { Textarea } from "~/components/ui/textarea";
-import { getMuxPoster } from "~/components/video-player";
 import { YoutubeInput } from "~/components/youtube-input";
 import { POST_TAGS } from "~/db/schema";
 import { basePostSchema } from "~/server/fns/posts/shared";

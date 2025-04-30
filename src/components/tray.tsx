@@ -1,5 +1,4 @@
-import React from "react";
-import { useState } from "react";
+import React, { useState } from "react";
 import { useMediaQuery } from "usehooks-ts";
 
 import {
@@ -22,8 +21,10 @@ const MEDIA_QUERY_DESKTOP = "(max-width: 768px)";
 
 const TrayContext = React.createContext<{
   isMobile: boolean;
+  open: boolean;
 }>({
   isMobile: false,
+  open: false,
 });
 
 const useTrayContext = () => React.useContext(TrayContext);
@@ -40,7 +41,7 @@ export function Tray(
   const Comp = isMobile ? Drawer : Dialog;
 
   return (
-    <TrayContext.Provider value={{ isMobile }}>
+    <TrayContext.Provider value={{ isMobile, open }}>
       <Comp
         {...properties}
         onOpenChange={properties.onOpenChange ?? setOpen}
@@ -78,13 +79,23 @@ export function TrayContent({
 )) {
   const { isMobile } = useTrayContext();
 
-  return isMobile ? (
-    <DrawerContent
-      className={cn("p-4", className, drawerClassName)}
-      {...properties}
-    />
-  ) : (
-    <DialogContent className={cn(className, dialogClassName)} {...properties} />
+  return (
+    <>
+      <TrayOverlay />
+      {isMobile ? (
+        <DrawerContent
+          className={cn("p-4", className, drawerClassName)}
+          {...properties}
+          overlay={false}
+        />
+      ) : (
+        <DialogContent
+          className={cn(className, dialogClassName)}
+          {...properties}
+          overlay={false}
+        />
+      )}
+    </>
   );
 }
 
@@ -110,4 +121,16 @@ export function TrayTrigger(
   const Comp = isMobile ? DrawerTrigger : DialogTrigger;
 
   return <Comp {...properties} />;
+}
+
+function TrayOverlay() {
+  const { open } = useTrayContext();
+  return (
+    <div
+      className={cn(
+        "fixed inset-0 z-50 bg-black/50 duration-200",
+        open ? "opacity-100" : "pointer-events-none opacity-0",
+      )}
+    />
+  );
 }

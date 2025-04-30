@@ -11,6 +11,13 @@ export function errorFmt(error: unknown) {
   return error instanceof Error ? error.message : String(error);
 }
 
+export const preferCdn = (url?: string | null): string => {
+  if (!url) return "";
+  return url.replace(
+    new URL(url).origin,
+    "https://d21ywshxutk0x0.cloudfront.net",
+  );
+};
 /**
  * @see https://dev.to/jorik/country-code-to-flag-emoji-a21
  */
@@ -43,7 +50,7 @@ export function preprocessText(text: string) {
 }
 
 export function removeNullish<T>(x: T): x is NonNullable<T> {
-  return x !== undefined && x !== null;
+  return x !== null && x !== undefined;
 }
 
 /**

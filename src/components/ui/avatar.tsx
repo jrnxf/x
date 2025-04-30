@@ -1,7 +1,7 @@
 import * as AvatarPrimitive from "@radix-ui/react-avatar";
 import * as React from "react";
 
-import { cn, getUserInitials } from "~/lib/utils";
+import { cn, getUserInitials, preferCdn } from "~/lib/utils";
 
 const Avatar = React.forwardRef<
   React.ElementRef<typeof AvatarPrimitive.Root>,
@@ -27,7 +27,7 @@ const AvatarImage = React.forwardRef<
   <AvatarPrimitive.Image
     className={cn("aspect-square h-full w-full", className)}
     ref={ref}
-    src={src ?? undefined}
+    src={src ? preferCdn(src) : undefined}
     {...props}
   />
 ));
