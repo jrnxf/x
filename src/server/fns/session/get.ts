@@ -1,9 +1,9 @@
 import { createServerFn } from "@tanstack/react-start";
 
-import { useAppSession } from "~/lib/session";
+import { useServerSession } from "~/lib/session";
 
 export const serverFn = createServerFn({ method: "GET" }).handler(async () => {
-  const session = await useAppSession();
+  const session = await useServerSession();
 
   // capture the flash
   const flash = session.data.flash;
