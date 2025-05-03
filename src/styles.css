@@ -99,7 +99,8 @@
     --input: var(--color-zinc-800);
     --ring: var(--color-zinc-300);
 
-    --sidebar-background: 240 6% 9%;
+    /* --sidebar-background: 240 6% 9%; */
+    --sidebar-background: 0 0% 4%;
     --sidebar-foreground: 240 5% 96%;
     --sidebar-primary: 224 76% 48%;
     --sidebar-primary-foreground: 0 0% 100%;

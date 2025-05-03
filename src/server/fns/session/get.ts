@@ -1,3 +1,4 @@
+import { queryOptions } from "@tanstack/react-query";
 import { createServerFn } from "@tanstack/react-start";
 
 import { useServerSession } from "~/server/session";
@@ -12,13 +13,21 @@ export const serverFn = createServerFn({ method: "GET" }).handler(async () => {
     await session.update({ flash: undefined });
   }
 
-  return {
+  const sessionData = {
     ...session.data,
     // return the flash
     flash,
   };
+
+  return sessionData;
 });
 
 export const getSession = {
+  queryOptions: () => {
+    return queryOptions({
+      queryKey: ["session"],
+      queryFn: serverFn,
+    });
+  },
   serverFn,
 };

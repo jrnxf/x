@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { Loader2Icon } from "lucide-react";
 import { FormProvider, useForm } from "react-hook-form";
@@ -9,6 +9,7 @@ import { Button } from "~/components/ui/button";
 import { FormMessage } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
+import { sleep } from "~/lib/dx/utils";
 import { login } from "~/server/fns/auth/login";
 
 export const Route = createFileRoute("/auth/login")({
@@ -43,10 +44,14 @@ function RouteComponent() {
     register,
   } = form;
 
+  const queryClient = useQueryClient();
   const { data, isPending, mutate } = useMutation({
     mutationFn: login.serverFn,
     onSuccess: async (data) => {
       if (data.success) {
+        queryClient.removeQueries({
+          queryKey: ["session"],
+        });
         const redirectPath = search?.redirect ?? "/auth/me";
 
         router.navigate({ to: redirectPath });

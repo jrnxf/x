@@ -45,26 +45,14 @@ function RouteComponent() {
 
   return (
     <div className="mx-auto flex w-full max-w-4xl grow flex-col gap-3 p-3">
-      {/* <div className="flex items-end justify-between gap-4">
+      <div className="flex items-end justify-between gap-4">
         <Button asChild>
           <Link to="/posts/create">Create</Link>
         </Button>
 
-        <Input
-          className="max-w-[300px]"
-          id="search"
-          onChange={(evt) =>
-            startTransition(() => {
-              setSearch(evt.target.value);
-            })
-          }
-          placeholder="Search posts"
-          value={search}
-        />
-      </div> */}
-
-      <div className="sticky top-3 z-10 self-end">
-        <FiltersTray />
+        <div className="sticky top-3 z-10 self-end">
+          <FiltersTray />
+        </div>
       </div>
       {posts.length === 0 && (
         <p className="text-muted-foreground mt-1">No posts</p>

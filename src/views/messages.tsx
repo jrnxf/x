@@ -56,8 +56,6 @@ export function MessagesView({
     // the server - in cases where the page is rendered on the client (eg
     // browser back button), we need to scroll to the bottom manually
 
-    console.log("scrolling to", threshold);
-
     scrollTo("bottom", threshold);
     scrollCountReference.current++;
   }, [scrollTo, lastChatMessageByUserId, chatMessageCount, sessionUser]);

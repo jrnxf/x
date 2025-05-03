@@ -53,13 +53,12 @@ export const serverFn = createServerFn({
   });
 
 export const getUser = {
-  queryOptions: (data: ServerFnData<typeof serverFn>) =>
-    queryOptions({
+  queryOptions: (data: ServerFnData<typeof serverFn>) => {
+    return queryOptions({
       queryKey: ["user", data.userId],
-      queryFn: async () => {
-        return serverFn({ data });
-      },
-    }),
+      queryFn: () => serverFn({ data }),
+    });
+  },
   schema,
   serverFn,
 };

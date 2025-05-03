@@ -16,7 +16,7 @@ const serverFn = createServerFn({
 })
   .validator(schema)
   .handler(async ({ data }) => {
-    return await db.query.posts.findFirst({
+    const post = await db.query.posts.findFirst({
       where: eq(posts.id, data.postId),
       with: {
         likes: {
@@ -62,6 +62,12 @@ const serverFn = createServerFn({
         video: true,
       },
     });
+
+    if (!post) {
+      throw new Error("Post not found");
+    }
+
+    return post;
   });
 
 export const getPost = {

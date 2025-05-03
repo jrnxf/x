@@ -26,7 +26,7 @@ function RouteComponent() {
     onSuccess: async (data) => {
       await queryClient.refetchQueries({
         exact: true,
-        queryKey: ["posts"],
+        queryKey: ["posts", {}],
       });
 
       router.navigate({ params: { postId: data.id }, to: "/posts/$postId" });

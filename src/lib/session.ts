@@ -16,3 +16,13 @@ export function useSessionUser() {
   const session = useSessionData();
   return session.user;
 }
+
+// export function useSessionFlash() {
+//   const { data } = useSuspenseQuery(getSession.queryOptions());
+//   return data.flash;
+// }
+
+// export function useSessionUser() {
+//   const { data } = useSuspenseQuery(getSession.queryOptions());
+//   return data.user;
+// }

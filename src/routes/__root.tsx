@@ -18,10 +18,10 @@ import appCss from "~/styles.css?url";
 export const Route = createRootRouteWithContext<{
   queryClient: QueryClient;
 }>()({
-  beforeLoad: async () => {
-    console.log("before load enter");
-    const session = await getSession.serverFn();
-    console.log("before load exit", session);
+  beforeLoad: async ({ context }) => {
+    const session = await context.queryClient.ensureQueryData(
+      getSession.queryOptions(),
+    );
     return { session };
   },
   component: RootComponent,
@@ -66,6 +66,8 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
         <HeadContent />
       </head>
       <body className="dark bg-background text-foreground flex min-h-dvh grow flex-col font-mono">
+        {/* <SidebarProvider>
+          <AppSidebar /> */}
         <div className="flex grow flex-col" data-vaul-drawer-wrapper>
           <nav className="sticky top-0 z-10 flex w-full items-center gap-2 border-b bg-white px-4 py-1.5 dark:bg-[#0a0a0a]">
             <Button asChild variant="ghost">
@@ -104,9 +106,11 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
             // scroll restoration but not cause the jump mentioned above.
             data-scroll-restoration-id="main"
           >
+            {/* <SidebarTrigger /> */}
             {children}
           </main>
         </div>
+        {/* </SidebarProvider> */}
         <Toaster />
         <ReactQueryDevtools buttonPosition="bottom-left" />
         <Scripts />

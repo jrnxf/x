@@ -1,5 +1,5 @@
-import { Link } from "@tanstack/react-router";
-import { useServerFn } from "@tanstack/react-start";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { Link, useRouter } from "@tanstack/react-router";
 
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
@@ -17,7 +17,19 @@ import { logout } from "~/server/fns/auth/logout";
 export function AuthButton() {
   const sessionUser = useSessionUser();
 
-  const handleLogout = useServerFn(logout.serverFn);
+  const router = useRouter();
+
+  const queryClient = useQueryClient();
+
+  const { mutate: handleLogout } = useMutation({
+    mutationFn: logout.serverFn,
+    onSuccess: async () => {
+      queryClient.removeQueries({
+        queryKey: ["session"],
+      });
+      router.navigate({ to: "/auth/login" });
+    },
+  });
 
   if (!sessionUser) {
     return (
@@ -29,18 +41,20 @@ export function AuthButton() {
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger className="flex items-center gap-2">
-        <Avatar className="size-8">
-          <AvatarImage
-            alt={`Avatar for ${sessionUser.name}`}
-            className="rounded-full object-cover"
-            src={sessionUser.avatarUrl}
-          />
-          <AvatarFallback
-            className="flex w-full items-center justify-center"
-            name={sessionUser.name}
-          />
-        </Avatar>
+      <DropdownMenuTrigger className="flex items-center gap-2" asChild>
+        <Button size="icon-sm" variant="ghost" className="rounded-full">
+          <Avatar className="size-8">
+            <AvatarImage
+              alt={`Avatar for ${sessionUser.name}`}
+              className="rounded-full object-cover"
+              src={sessionUser.avatarUrl}
+            />
+            <AvatarFallback
+              className="flex w-full items-center justify-center"
+              name={sessionUser.name}
+            />
+          </Avatar>
+        </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent
         align="start"

@@ -96,7 +96,6 @@ export function useUpdateMessage(
   }>({
     onError: (error, _message, ctx) => {
       if (ctx) {
-        console.log(error);
         toast(error.message);
         utils.messages.list.setData(record, ctx.previousData);
       }
