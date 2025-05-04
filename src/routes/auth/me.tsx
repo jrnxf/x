@@ -7,9 +7,13 @@ import { UserView } from "~/views/user";
 
 export const Route = createFileRoute("/auth/me")({
   component: RouteComponent,
-  loader: async ({ context }) => {
+  loader: async ({ context, location }) => {
+    console.log("location", location);
     if (!context.session.user) {
-      throw redirect({ to: "/auth/login", search: { redirect: "/auth/me" } });
+      throw redirect({
+        to: "/auth/login",
+        search: { redirect: location.href },
+      });
     }
     await context.queryClient.ensureQueryData(
       getUser.queryOptions({ userId: context.session.user!.id }),

@@ -40,16 +40,16 @@ function RouteComponent() {
   const { data: post } = useSuspenseQuery(getPost.queryOptions({ postId }));
   const router = useRouter();
 
-  const queryClient = useQueryClient();
+  const qc = useQueryClient();
 
   const { mutate } = useMutation({
     mutationFn: updatePost.serverFn,
     onSuccess: async () => {
       await Promise.all([
-        queryClient.refetchQueries({
+        qc.refetchQueries({
           queryKey: ["posts", postId],
         }),
-        queryClient.refetchQueries({
+        qc.refetchQueries({
           exact: true,
           queryKey: ["posts"],
         }),

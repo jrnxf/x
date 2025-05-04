@@ -1,24 +1,9 @@
 import { useSession } from "@tanstack/react-start/server";
-import { z } from "zod";
-
 import { env } from "~/lib/env";
-
-export const sessionSchema = z.object({
-  flash: z.string().optional(),
-  user: z
-    .object({
-      avatarUrl: z.string().nullable(),
-      email: z.string().email(),
-      id: z.number(),
-      name: z.string(),
-    })
-    .optional(),
-});
-
-export type Session = z.infer<typeof sessionSchema>;
+import { type HausSession } from "~/lib/session";
 
 export function useServerSession() {
-  return useSession<Session>({
+  return useSession<HausSession>({
     name: "haus-session",
     password: env.SESSION_SECRET,
     cookie: {

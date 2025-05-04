@@ -15,14 +15,21 @@ export function createRouter() {
 
   return routerWithQueryClient(
     createTanStackRouter({
-      context: { queryClient },
-      defaultErrorComponent: CatchBoundary,
-      defaultNotFoundComponent: () => <NotFound />,
-      defaultPreload: "intent",
       routeTree,
+      context: { queryClient, session: {} },
+      defaultPreload: "intent",
+      // react-query will handle data fetching & caching
+      // https://tanstack.com/router/latest/docs/framework/react/guide/data-loading#passing-all-loader-events-to-an-external-cache
+      defaultPreloadStaleTime: 0,
+
       scrollRestoration: true,
       // scroll to top of main tag in addition to window
       scrollToTopSelectors: ["main"],
+
+      defaultErrorComponent: CatchBoundary,
+      defaultNotFoundComponent: () => <NotFound />,
+
+      defaultStructuralSharing: true,
     }),
     queryClient,
   );

@@ -6,11 +6,13 @@ import { createPost } from "~/server/fns/posts/create";
 
 export const Route = createFileRoute("/posts/create")({
   component: RouteComponent,
-  loader: async ({ context }) => {
+  loader: async ({ context, location }) => {
     if (!context.session.user) {
       throw redirect({
-        search: { redirect: "/posts/create" },
         to: "/auth/login",
+        search: {
+          redirect: location.href,
+        },
       });
     }
   },
@@ -19,12 +21,12 @@ export const Route = createFileRoute("/posts/create")({
 function RouteComponent() {
   const router = useRouter();
 
-  const queryClient = useQueryClient();
+  const qc = useQueryClient();
 
   const { mutate } = useMutation({
     mutationFn: createPost.serverFn,
     onSuccess: async (data) => {
-      await queryClient.refetchQueries({
+      await qc.refetchQueries({
         exact: true,
         queryKey: ["posts", {}],
       });
