@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, redirect, useRouter } from "@tanstack/react-router";
 
 import { PostForm } from "~/components/forms/post";
+import { POSTS_KEY } from "~/lib/keys";
 import { createPost } from "~/server/fns/posts/create";
 
 export const Route = createFileRoute("/posts/create")({
@@ -28,7 +29,7 @@ function RouteComponent() {
     onSuccess: async (data) => {
       await qc.refetchQueries({
         exact: true,
-        queryKey: ["posts", {}],
+        queryKey: [POSTS_KEY, {}],
       });
 
       router.navigate({ params: { postId: data.id }, to: "/posts/$postId" });

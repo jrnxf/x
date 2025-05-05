@@ -1,4 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import invariant from "tiny-invariant";
+import { MESSAGES_KEY } from "~/lib/keys";
 import { useSessionUser } from "~/lib/session";
 // import { toast } from "sonner";
 
@@ -15,21 +17,24 @@ export function useCreateMessage(record: RecordWithMessages) {
     mutationFn: createMessage.serverFn,
 
     onMutate: async (newMessage) => {
+      invariant(sessionUser, "sessionUser is required");
+
+      console.log("onMutate", newMessage);
       qc.cancelQueries({
-        queryKey: ["messages", record.type, record.recordId],
+        queryKey: [MESSAGES_KEY, record.type, record.recordId],
       });
 
-      const previousData = qc.getQueryData<Message[]>([
-        "messages",
+      const prev = qc.getQueryData<Message[]>([
+        MESSAGES_KEY,
         record.type,
         record.recordId,
       ]);
 
-      if (previousData && sessionUser) {
+      if (prev) {
         qc.setQueryData(
-          ["messages", record.type, record.recordId],
+          [MESSAGES_KEY, record.type, record.recordId],
           [
-            ...previousData,
+            ...prev,
             {
               content: newMessage.data.content,
               createdAt: new Date(),
@@ -40,21 +45,23 @@ export function useCreateMessage(record: RecordWithMessages) {
             },
           ],
         );
+        console.log("set query data cache");
       }
 
-      return { previousData };
+      return { prev };
     },
-    onError: (_error, _variables, ctx) => {
-      if (ctx) {
+    onError: (error, _variables, context) => {
+      console.error(error);
+      if (context) {
         qc.setQueryData(
-          ["messages", record.type, record.recordId],
-          ctx.previousData,
+          [MESSAGES_KEY, record.type, record.recordId],
+          context.prev,
         );
       }
     },
     onSettled: () => {
       qc.invalidateQueries({
-        queryKey: ["messages", record.type, record.recordId],
+        queryKey: [MESSAGES_KEY, record.type, record.recordId],
       });
     },
   });

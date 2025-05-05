@@ -15,7 +15,13 @@ const serverFn = createServerFn({
 })
   .validator(schema)
   .handler(async ({ data }) => {
-    await db.update(posts).set(data).where(eq(posts.id, data.postId));
+    const [post] = await db
+      .update(posts)
+      .set(data)
+      .where(eq(posts.id, data.postId))
+      .returning();
+
+    return post;
   });
 
 export const updatePost = {

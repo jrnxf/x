@@ -16,6 +16,8 @@ export function ChatMessagesView() {
     recordId: -1,
     type: "chat",
   });
+
+  console.log("data", chatMessages.length);
   return (
     <MessagesView
       record={{ recordId: -1, type: "chat" }}

@@ -11,6 +11,7 @@ import {
   CommandList,
   CommandSeparator,
 } from "~/components/ui/command";
+import { Separator } from "~/components/ui/separator";
 import { useLogout, useSessionUser } from "~/lib/session";
 
 type Page = "games" | "posts" | "root" | "theme" | "users";
@@ -75,9 +76,9 @@ export function CommandMenu() {
         placeholder="Search for anything..."
         value={input}
       />
+      <Separator />
       <CommandList>
         <CommandEmpty>No results found.</CommandEmpty>
-        <CommandSeparator />
 
         {activePage === "root" && (
           <>
