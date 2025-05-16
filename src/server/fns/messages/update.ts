@@ -3,7 +3,6 @@ import { eq } from "drizzle-orm";
 import invariant from "tiny-invariant";
 
 import { db } from "~/db";
-import { chatMessages, postMessages } from "~/db/schema";
 import {
   createUpdateMessageSchema,
   getTableByType,

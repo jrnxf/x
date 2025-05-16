@@ -1,5 +1,4 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Link, useRouter } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router";
 
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
@@ -11,25 +10,12 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
-import { useSessionUser } from "~/lib/session";
-import { logout } from "~/server/fns/auth/logout";
+import { useLogout, useSessionUser } from "~/lib/session";
 
 export function AuthButton() {
   const sessionUser = useSessionUser();
 
-  const router = useRouter();
-
-  const queryClient = useQueryClient();
-
-  const { mutate: handleLogout } = useMutation({
-    mutationFn: logout.serverFn,
-    onSuccess: async () => {
-      queryClient.removeQueries({
-        queryKey: ["session"],
-      });
-      router.navigate({ to: "/auth/login" });
-    },
-  });
+  const logout = useLogout();
 
   if (!sessionUser) {
     return (
@@ -108,9 +94,7 @@ export function AuthButton() {
           </DropdownMenuPortal>
         </DropdownMenuSub>
          */}
-        <DropdownMenuItem onSelect={() => handleLogout()}>
-          Logout
-        </DropdownMenuItem>
+        <DropdownMenuItem onSelect={logout}>Logout</DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );

@@ -3,13 +3,16 @@ import {
   useQueryClient,
   useSuspenseQuery,
 } from "@tanstack/react-query";
-import { createFileRoute, redirect, useRouter } from "@tanstack/react-router";
+import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import { z } from "zod";
+import { merge } from "lodash-es";
 
 import { PostForm } from "~/components/forms/post";
+import { POSTS_KEY } from "~/lib/keys";
 import { getPost } from "~/server/fns/posts/get";
 import { updatePost } from "~/server/fns/posts/update";
 import { setFlash } from "~/server/fns/session/flash/set";
+import { toast } from "sonner";
 
 const pathParametersSchema = z.object({
   postId: z.coerce.number(),
@@ -38,26 +41,48 @@ export const Route = createFileRoute("/posts/$postId/edit")({
 function RouteComponent() {
   const { postId } = Route.useParams();
   const { data: post } = useSuspenseQuery(getPost.queryOptions({ postId }));
-  const router = useRouter();
+  const navigate = useNavigate();
 
-  const queryClient = useQueryClient();
+  const qc = useQueryClient();
 
   const { mutate } = useMutation({
     mutationFn: updatePost.serverFn,
-    onSuccess: async () => {
-      await Promise.all([
-        queryClient.refetchQueries({
-          queryKey: ["posts", postId],
-        }),
-        queryClient.refetchQueries({
-          exact: true,
-          queryKey: ["posts"],
-        }),
-      ]);
+    onMutate: ({ data }) => {
+      qc.cancelQueries({
+        queryKey: [POSTS_KEY, postId],
+      });
 
-      router.navigate({ params: { postId }, to: "/posts/$postId" });
+      const prev = qc.getQueryData([POSTS_KEY, postId]);
+
+      qc.setQueryData([POSTS_KEY, postId], (prev) => merge(prev, data));
+
+      navigate({ to: "/posts/$postId", params: { postId } });
+
+      return {
+        prev,
+      };
+    },
+    onSuccess: async () => {
+      await qc.refetchQueries({
+        exact: true,
+        queryKey: [POSTS_KEY, {}],
+      });
+    },
+    onError: (error, _variables, context) => {
+      console.error(error);
+      if (context) {
+        qc.setQueryData([POSTS_KEY, postId], context.prev);
+        toast.error("Failed to update post");
+        navigate({ to: "/posts/$postId/edit", params: { postId } });
+      }
+    },
+    onSettled: () => {
+      qc.invalidateQueries({
+        queryKey: [POSTS_KEY, postId],
+      });
     },
   });
+
   if (!post) {
     return null;
   }

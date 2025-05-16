@@ -28,9 +28,9 @@ export const serverFn = createServerFn({ method: "POST" })
 
     if (!userWithPassword) {
       return {
-        message: "User not found",
+        errorMessage: "User not found",
         success: false,
-      };
+      } as const;
     }
 
     const { password, ...user } = userWithPassword;
@@ -39,9 +39,9 @@ export const serverFn = createServerFn({ method: "POST" })
 
     if (!isCorrectPassword) {
       return {
-        message: "Invalid credentials",
+        errorMessage: "Invalid credentials",
         success: false,
-      };
+      } as const;
     }
 
     // Create a session
@@ -50,7 +50,8 @@ export const serverFn = createServerFn({ method: "POST" })
     await session.update({ user });
 
     return {
-      success: true,
+      success: true as const,
+      sessionUser: user,
     };
   });
 

@@ -10,13 +10,16 @@ import {
 import { type ReactNode } from "react";
 
 import { AuthButton } from "~/components/auth-button";
+import { CommandMenu } from "~/components/command-menu";
 import { Button } from "~/components/ui/button";
 import { Toaster } from "~/components/ui/sonner";
+import { type HausSession } from "~/lib/session";
 import { getSession } from "~/server/fns/session/get";
 import appCss from "~/styles.css?url";
 
 export const Route = createRootRouteWithContext<{
   queryClient: QueryClient;
+  session: HausSession;
 }>()({
   beforeLoad: async ({ context }) => {
     const session = await context.queryClient.ensureQueryData(
@@ -37,15 +40,11 @@ export const Route = createRootRouteWithContext<{
       },
     ],
     meta: [
-      {
-        charSet: "utf8",
-      },
+      { title: "une.haus" },
+      { charSet: "utf8" },
       {
         content: "width=device-width, initial-scale=1",
         name: "viewport",
-      },
-      {
-        title: "une.haus",
       },
     ],
   }),
@@ -68,6 +67,8 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
       <body className="dark bg-background text-foreground flex min-h-dvh grow flex-col font-mono">
         {/* <SidebarProvider>
           <AppSidebar /> */}
+        <CommandMenu />
+
         <div className="flex grow flex-col" data-vaul-drawer-wrapper>
           <nav className="sticky top-0 z-10 flex w-full items-center gap-2 border-b bg-white px-4 py-1.5 dark:bg-[#0a0a0a]">
             <Button asChild variant="ghost">
@@ -110,6 +111,7 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
             {children}
           </main>
         </div>
+
         {/* </SidebarProvider> */}
         <Toaster />
         <ReactQueryDevtools buttonPosition="bottom-left" />

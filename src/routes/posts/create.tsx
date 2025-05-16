@@ -2,15 +2,18 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, redirect, useRouter } from "@tanstack/react-router";
 
 import { PostForm } from "~/components/forms/post";
+import { POSTS_KEY } from "~/lib/keys";
 import { createPost } from "~/server/fns/posts/create";
 
 export const Route = createFileRoute("/posts/create")({
   component: RouteComponent,
-  loader: async ({ context }) => {
+  loader: async ({ context, location }) => {
     if (!context.session.user) {
       throw redirect({
-        search: { redirect: "/posts/create" },
         to: "/auth/login",
+        search: {
+          redirect: location.href,
+        },
       });
     }
   },
@@ -19,14 +22,14 @@ export const Route = createFileRoute("/posts/create")({
 function RouteComponent() {
   const router = useRouter();
 
-  const queryClient = useQueryClient();
+  const qc = useQueryClient();
 
   const { mutate } = useMutation({
     mutationFn: createPost.serverFn,
     onSuccess: async (data) => {
-      await queryClient.refetchQueries({
+      await qc.refetchQueries({
         exact: true,
-        queryKey: ["posts", {}],
+        queryKey: [POSTS_KEY, {}],
       });
 
       router.navigate({ params: { postId: data.id }, to: "/posts/$postId" });

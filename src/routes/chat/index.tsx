@@ -1,12 +1,4 @@
 import { createFileRoute } from "@tanstack/react-router";
-import {
-  Tray,
-  TrayTrigger,
-  TrayContent,
-  TrayTitle,
-  TrayClose,
-} from "~/components/tray";
-import { Button } from "~/components/ui/button";
 import { listMessages } from "~/server/fns/messages/list";
 import { ChatMessagesView } from "~/views/chat-messages";
 

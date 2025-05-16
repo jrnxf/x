@@ -36,7 +36,7 @@ export function useCreateSet() {
 }
 
 export function useCreateSubmission() {
-  const queryClient = useQueryClient();
+  const qc = useQueryClient();
 
   return api.games.createRiuSubmission.useMutation({
     onError: (error) => {
@@ -45,7 +45,7 @@ export function useCreateSubmission() {
     },
     onSuccess: () => {
       toast.success("Submission created");
-      queryClient.refetchQueries({
+      qc.refetchQueries({
         queryKey: getQueryKey(api.games.listRiuSets, "active"),
       });
     },

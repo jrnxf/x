@@ -1,6 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Loader2Icon } from "lucide-react";
 import { FormProvider, useForm } from "react-hook-form";
 import { z } from "zod";
@@ -9,7 +9,7 @@ import { Button } from "~/components/ui/button";
 import { FormMessage } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
-import { sleep } from "~/lib/dx/utils";
+import { useLogin, type HausSession } from "~/lib/session";
 import { login } from "~/server/fns/auth/login";
 
 export const Route = createFileRoute("/auth/login")({
@@ -26,9 +26,6 @@ export const Route = createFileRoute("/auth/login")({
 });
 
 function RouteComponent() {
-  const search = Route.useSearch();
-  const router = useRouter();
-
   const form = useForm<z.infer<typeof login.schema>>({
     defaultValues: {
       email: "",
@@ -44,20 +41,7 @@ function RouteComponent() {
     register,
   } = form;
 
-  const queryClient = useQueryClient();
-  const { data, isPending, mutate } = useMutation({
-    mutationFn: login.serverFn,
-    onSuccess: async (data) => {
-      if (data.success) {
-        queryClient.removeQueries({
-          queryKey: ["session"],
-        });
-        const redirectPath = search?.redirect ?? "/auth/me";
-
-        router.navigate({ to: redirectPath });
-      }
-    },
-  });
+  const { data, isPending, mutate } = useLogin();
 
   return (
     <div className="mx-auto w-full max-w-xl p-8" id="main-content">
@@ -67,12 +51,7 @@ function RouteComponent() {
           onSubmit={(event) => {
             event.preventDefault();
             handleSubmit((data) => {
-              mutate({
-                data: {
-                  ...data,
-                  redirect: search?.redirect ?? "/auth/me",
-                },
-              });
+              mutate({ data });
             })(event);
           }}
         >
@@ -86,8 +65,10 @@ function RouteComponent() {
             <Input {...register("password")} id="password" type="password" />
             <FormMessage error={errors.password} />
           </div>
-          {data && (
-            <p className="text-destructive mt-2 font-medium">{data.message}</p>
+          {data && data.errorMessage && (
+            <p className="text-destructive mt-2 font-medium">
+              {data.errorMessage}
+            </p>
           )}
           <div className="flex flex-row-reverse items-center justify-between">
             <Button

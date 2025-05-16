@@ -1,5 +1,4 @@
-import { useTheme } from "next-themes";
-import { useRouter } from "next/navigation";
+import { useNavigate, useRouter } from "@tanstack/react-router";
 import * as React from "react";
 import { useEventListener } from "usehooks-ts";
 
@@ -12,12 +11,18 @@ import {
   CommandList,
   CommandSeparator,
 } from "~/components/ui/command";
-import { logout } from "~/server/actions/auth/logout";
+import { Separator } from "~/components/ui/separator";
+import { useLogout, useSessionUser } from "~/lib/session";
 
 type Page = "games" | "posts" | "root" | "theme" | "users";
 
-export function CommandMenu({ isAuthenticated }: { isAuthenticated: boolean }) {
-  const router = useRouter();
+export function CommandMenu() {
+  const sessionUser = useSessionUser();
+  const isAuthenticated = Boolean(sessionUser);
+
+  const navigate = useNavigate();
+
+  const logout = useLogout();
 
   const [open, setOpen] = React.useState(false);
   const [pages, setPages] = React.useState<Page[]>(["root"]);
@@ -25,7 +30,7 @@ export function CommandMenu({ isAuthenticated }: { isAuthenticated: boolean }) {
   const [input, setInput] = React.useState("");
   const activePage = pages.at(-1);
 
-  const { setTheme } = useTheme();
+  // const { setTheme } = useTheme();
 
   useEventListener("keydown", (event: KeyboardEvent) => {
     if (event.key === "k" && (event.metaKey || event.ctrlKey)) {
@@ -35,7 +40,7 @@ export function CommandMenu({ isAuthenticated }: { isAuthenticated: boolean }) {
   });
 
   const goTo = (route: string) => {
-    router.push(route);
+    navigate({ to: route });
     setOpen(false);
   };
 
@@ -71,9 +76,9 @@ export function CommandMenu({ isAuthenticated }: { isAuthenticated: boolean }) {
         placeholder="Search for anything..."
         value={input}
       />
+      <Separator />
       <CommandList>
         <CommandEmpty>No results found.</CommandEmpty>
-        <CommandSeparator />
 
         {activePage === "root" && (
           <>
@@ -106,9 +111,9 @@ export function CommandMenu({ isAuthenticated }: { isAuthenticated: boolean }) {
                 </>
               ) : (
                 <>
-                  <CommandItem onSelect={() => pushPage("theme")}>
+                  {/* <CommandItem onSelect={() => pushPage("theme")}>
                     Theme
-                  </CommandItem>
+                  </CommandItem> */}
                   <CommandItem onSelect={() => goTo("/auth/login")}>
                     Login
                   </CommandItem>
@@ -117,7 +122,7 @@ export function CommandMenu({ isAuthenticated }: { isAuthenticated: boolean }) {
             </CommandGroup>
           </>
         )}
-
+        {/* 
         {activePage === "theme" && (
           <CommandGroup heading="Theme">
             <CommandItem
@@ -145,7 +150,7 @@ export function CommandMenu({ isAuthenticated }: { isAuthenticated: boolean }) {
               System
             </CommandItem>
           </CommandGroup>
-        )}
+        )} */}
       </CommandList>
     </CommandDialog>
   );
