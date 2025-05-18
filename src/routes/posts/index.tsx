@@ -19,19 +19,21 @@ import { Input } from "~/components/ui/input";
 import { getMuxPoster } from "~/components/video-player";
 import { WrappedBadges } from "~/components/wrapped-badges";
 import { listPosts } from "~/server/fns/posts/list";
+import { useTRPC } from "~/integrations/trpc/react";
 
 export const Route = createFileRoute("/posts/")({
   validateSearch: listPosts.schema,
   loaderDeps: ({ search }) => search,
   loader: async ({ context, deps }) => {
     await context.queryClient.ensureInfiniteQueryData(
-      listPosts.infiniteQueryOptions(deps),
+      context.trpc.post.list.infiniteQueryOptions(deps),
     );
   },
   component: RouteComponent,
 });
 
 function RouteComponent() {
+  const trpc = useTRPC();
   const searchParams = Route.useSearch();
 
   const {
@@ -39,7 +41,19 @@ function RouteComponent() {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-  } = useSuspenseInfiniteQuery(listPosts.infiniteQueryOptions(searchParams));
+  } = useSuspenseInfiniteQuery(
+    trpc.post.list.infiniteQueryOptions(searchParams, {
+      getNextPageParam: (lastPage) => {
+        if (lastPage.length < 25) {
+          // the last page returned less than the requested limit, so we
+          // know there is no more results for this filter set
+          return;
+        }
+
+        return lastPage.at(-1)?.id;
+      },
+    }),
+  );
 
   const posts = useMemo(() => postsPages.pages.flat(), [postsPages]);
 

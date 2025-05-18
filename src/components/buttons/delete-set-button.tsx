@@ -3,19 +3,19 @@ import { Loader2Icon, TrashIcon } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { useDeleteSet } from "~/lib/hooks/rius";
 
-export default function DeleteSetButton({
-  onSuccess,
-  setId,
-}: {
-  onSuccess?: () => void;
-  setId: number;
-}) {
-  const deleteSet = useDeleteSet(setId, { onSuccess });
+export default function DeleteSetButton({ setId }: { setId: number }) {
+  const deleteSet = useDeleteSet();
 
   return (
     <Button
       className="focus:bg-red-700 focus:text-white"
-      onClick={() => deleteSet.mutate(setId)}
+      onClick={() =>
+        deleteSet.mutate({
+          data: {
+            setId,
+          },
+        })
+      }
       size="icon-sm"
       type="button"
       variant="ghost"

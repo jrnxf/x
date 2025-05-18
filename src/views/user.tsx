@@ -9,7 +9,6 @@ import {
 import { Link } from "@tanstack/react-router";
 import { Suspense } from "react";
 
-import { useSessionUser } from "~/lib/session";
 import { Globe } from "~/components/globe";
 import { SocialLink } from "~/components/social-link";
 import { Tray, TrayContent, TrayTitle, TrayTrigger } from "~/components/tray";
@@ -21,7 +20,6 @@ import { Skeleton } from "~/components/ui/skeleton";
 import { WrappedBadges } from "~/components/wrapped-badges";
 import { useFollows } from "~/lib/hooks/users";
 import { useSessionUser } from "~/lib/session";
-// import { useFollows } from "~/lib/hooks/users";
 import { cn, removeNullish } from "~/lib/utils";
 import { type getUser } from "~/server/fns/users/get";
 

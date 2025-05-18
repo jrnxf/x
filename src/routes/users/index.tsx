@@ -16,6 +16,7 @@ import { Input } from "~/components/ui/input";
 import { MultiSelect } from "~/components/ui/multi-select";
 import { WrappedBadges } from "~/components/wrapped-badges";
 import { USER_DISCIPLINES } from "~/db/schema";
+import { useTRPC } from "~/integrations/trpc/react";
 import { cn } from "~/lib/utils";
 import { listUsers } from "~/server/fns/users/list";
 
@@ -24,13 +25,14 @@ export const Route = createFileRoute("/users/")({
   loaderDeps: ({ search }) => search,
   loader: async ({ context, deps }) => {
     await context.queryClient.ensureInfiniteQueryData(
-      listUsers.infiniteQueryOptions(deps),
+      context.trpc.user.list.infiniteQueryOptions(deps),
     );
   },
   component: RouteComponent,
 });
 
 function RouteComponent() {
+  const trpc = useTRPC();
   const searchParams = Route.useSearch();
 
   const {
@@ -38,7 +40,18 @@ function RouteComponent() {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-  } = useSuspenseInfiniteQuery(listUsers.infiniteQueryOptions(searchParams));
+  } = useSuspenseInfiniteQuery(
+    trpc.user.list.infiniteQueryOptions(searchParams, {
+      getNextPageParam: (lastPage) => {
+        if (lastPage.length < 25) {
+          // the last page returned less than the requested limit, so we
+          // know there is no more results for this filter set
+          return;
+        }
+        return lastPage.at(-1)?.id;
+      },
+    }),
+  );
 
   // const [selectedUserIdx, setSelectedUserIdx] = useState(-1);
 

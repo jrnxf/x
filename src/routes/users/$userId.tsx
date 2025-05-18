@@ -1,26 +1,31 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import { getFollows } from "~/server/fns/users/follows/get";
+import { z } from "zod";
+import { useTRPC } from "~/integrations/trpc/react";
 
-import { getUser } from "~/server/fns/users/get";
 import { UserView } from "~/views/user";
 
 export const Route = createFileRoute("/users/$userId")({
   component: RouteComponent,
   params: {
-    parse: getUser.schema.parse,
+    parse: z.object({
+      userId: z.coerce.number(),
+    }).parse,
   },
   loader: async ({ context, params: { userId } }) => {
-    await Promise.all([
-      context.queryClient.ensureQueryData(getUser.queryOptions({ userId })),
-      context.queryClient.ensureQueryData(getFollows.queryOptions({ userId })),
-    ]);
+    await context.queryClient.ensureQueryData(
+      context.trpc.user.get.queryOptions({
+        userId,
+      }),
+    );
   },
 });
 
 function RouteComponent() {
+  const trpc = useTRPC();
+
   const { userId } = Route.useParams();
-  const { data } = useSuspenseQuery(getUser.queryOptions({ userId }));
+  const { data } = useSuspenseQuery(trpc.user.get.queryOptions({ userId }));
 
   return <UserView user={data} />;
 }

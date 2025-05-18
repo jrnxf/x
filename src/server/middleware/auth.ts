@@ -6,7 +6,7 @@ import { useServerSession } from "~/server/session";
 export const authMiddleware = createMiddleware().server(async ({ next }) => {
   const session = await useServerSession();
 
-  if (!session.data?.user) {
+  if (!session.data.user) {
     throw redirect({ to: "/auth/login" });
   }
 
@@ -16,3 +16,15 @@ export const authMiddleware = createMiddleware().server(async ({ next }) => {
     },
   });
 });
+
+export const authOptionalMiddleware = createMiddleware().server(
+  async ({ next }) => {
+    const session = await useServerSession();
+
+    return next({
+      context: {
+        user: session.data.user,
+      },
+    });
+  },
+);

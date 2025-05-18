@@ -7,20 +7,25 @@ import {
   Outlet,
   Scripts,
 } from "@tanstack/react-router";
+import { type TRPCOptionsProxy } from "@trpc/tanstack-react-query";
 import { type ReactNode } from "react";
 
 import { AuthButton } from "~/components/auth-button";
 import { CommandMenu } from "~/components/command-menu";
 import { Button } from "~/components/ui/button";
 import { Toaster } from "~/components/ui/sonner";
+import { type TRPCRouter } from "~/integrations/trpc/router";
 import { type HausSession } from "~/lib/session";
 import { getSession } from "~/server/fns/session/get";
 import appCss from "~/styles.css?url";
 
-export const Route = createRootRouteWithContext<{
-  queryClient: QueryClient;
+export interface RouterAppContext {
+  trpc: TRPCOptionsProxy<TRPCRouter>;
   session: HausSession;
-}>()({
+  queryClient: QueryClient;
+}
+
+export const Route = createRootRouteWithContext<RouterAppContext>()({
   beforeLoad: async ({ context }) => {
     const session = await context.queryClient.ensureQueryData(
       getSession.queryOptions(),
@@ -54,6 +59,7 @@ function RootComponent() {
   return (
     <RootDocument>
       <Outlet />
+      <ReactQueryDevtools buttonPosition="bottom-left" />
     </RootDocument>
   );
 }
@@ -65,8 +71,8 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
         <HeadContent />
       </head>
       <body className="dark bg-background text-foreground flex min-h-dvh grow flex-col font-mono">
-        {/* <SidebarProvider>
-          <AppSidebar /> */}
+        {/* <SidebarProvider> */}
+        {/* <AppSidebar /> */}
         <CommandMenu />
 
         <div className="flex grow flex-col" data-vaul-drawer-wrapper>
@@ -111,10 +117,8 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
             {children}
           </main>
         </div>
-
         {/* </SidebarProvider> */}
         <Toaster />
-        <ReactQueryDevtools buttonPosition="bottom-left" />
         <Scripts />
       </body>
     </html>

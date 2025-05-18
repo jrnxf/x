@@ -13,7 +13,7 @@ const serverFn = createServerFn({
   method: "GET",
 })
   .validator(schema)
-  .handler(async ({ data: data }) => {
+  .handler(async ({ data }) => {
     if (data.type === "chat") {
       return await db.query.chatMessages.findMany({
         orderBy: asc(chatMessages.createdAt),

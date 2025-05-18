@@ -1,22 +1,19 @@
-import { QueryClient } from "@tanstack/react-query";
 import { createRouter as createTanStackRouter } from "@tanstack/react-router";
 import { routerWithQueryClient } from "@tanstack/react-router-with-query";
 
 import { CatchBoundary } from "./components/catch-boundary";
 import { NotFound } from "./components/not-found";
 import { routeTree } from "./routeTree.gen";
-
-// NOTE: Most of the integration code found here is experimental and will
-// definitely end up in a more streamlined API in the future. This is just
-// to show what's possible with the current APIs.
+import * as TanstackQuery from "./integrations/tanstack-query/root-provider";
 
 export function createRouter() {
-  const queryClient = new QueryClient();
-
-  return routerWithQueryClient(
+  const router = routerWithQueryClient(
     createTanStackRouter({
       routeTree,
-      context: { queryClient, session: {} },
+      context: {
+        ...TanstackQuery.getContext(),
+        session: {},
+      },
       defaultPreload: "intent",
       // react-query will handle data fetching & caching
       // https://tanstack.com/router/latest/docs/framework/react/guide/data-loading#passing-all-loader-events-to-an-external-cache
@@ -30,9 +27,16 @@ export function createRouter() {
       defaultNotFoundComponent: () => <NotFound />,
 
       defaultStructuralSharing: true,
+      Wrap: (props: { children: React.ReactNode }) => {
+        return (
+          <TanstackQuery.Provider>{props.children}</TanstackQuery.Provider>
+        );
+      },
     }),
-    queryClient,
+    TanstackQuery.getContext().queryClient,
   );
+
+  return router;
 }
 
 declare module "@tanstack/react-router" {
