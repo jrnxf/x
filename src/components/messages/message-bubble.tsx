@@ -1,6 +1,6 @@
 import { HeartIcon } from "lucide-react";
 
-import { useAuth } from "~/components/auth-provider";
+import { useSessionUser } from "~/lib/session";
 import { Tray, TrayContent, TrayTrigger } from "~/components/tray";
 import { cn, preprocessText } from "~/lib/utils";
 import { type listMessages } from "~/server/fns/messages/list";
@@ -16,7 +16,7 @@ export function MessageBubble({
   record: RecordWithMessages;
   message: Message;
 }) {
-  const { sessionUser } = useAuth();
+  const sessionUser = useSessionUser();
 
   // const likeUnlike = useLikeUnlikeMessage(record, message.id);
   // const deleteMessage = useDeleteMessage(record);

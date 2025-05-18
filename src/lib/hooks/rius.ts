@@ -5,7 +5,7 @@ import { toast } from "sonner";
 
 import type { ProcedureOptions } from "~/server/api/root";
 
-import { useAuth } from "~/components/auth-provider";
+import { useSessionUser } from "~/lib/session";
 import { api } from "~/trpc/react";
 
 export function useCreateSet() {
@@ -58,7 +58,7 @@ export function useDeleteSet(
 ) {
   const utilities = api.useUtils();
 
-  const { sessionUser } = useAuth();
+  const sessionUser = useSessionUser();
 
   return api.games.deleteRiuSet.useMutation({
     onMutate: () => {

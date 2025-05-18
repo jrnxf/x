@@ -3,7 +3,7 @@ import { toast } from "sonner";
 import type { RecordWithMessages } from "~/models/messages";
 import type { ProcedureOptions } from "~/server/api/root";
 
-import { useAuth } from "~/components/auth-provider";
+import { useSessionUser } from "~/lib/session";
 import { api } from "~/trpc/react";
 export function useDeleteMessage(
   record: RecordWithMessages,
@@ -42,7 +42,7 @@ export function useLikeUnlikeMessage(
   record: RecordWithMessages,
   messageId: number,
 ) {
-  const { sessionUser } = useAuth();
+  const sessionUser = useSessionUser();
   const utilities = api.useUtils();
 
   return api.reaction.react.useMutation<{
@@ -91,7 +91,7 @@ export function useUpdateMessage(
   record: RecordWithMessages,
   arguments_: Pick<ProcedureOptions["messages"]["update"], "onSuccess">,
 ) {
-  const { sessionUser } = useAuth();
+  const sessionUser = useSessionUser();
   const utilities = api.useUtils();
 
   return api.messages.update.useMutation<{

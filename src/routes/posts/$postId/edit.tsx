@@ -59,7 +59,7 @@ function RouteComponent() {
       navigate({ to: "/posts/$postId", params: { postId } });
 
       return {
-        prev,
+        previousData: prev,
       };
     },
     onSuccess: async () => {
@@ -71,7 +71,7 @@ function RouteComponent() {
     onError: (error, _variables, context) => {
       console.error(error);
       if (context) {
-        qc.setQueryData([POSTS_KEY, postId], context.prev);
+        qc.setQueryData([POSTS_KEY, postId], context.previousData);
         toast.error("Failed to update post");
         navigate({ to: "/posts/$postId/edit", params: { postId } });
       }

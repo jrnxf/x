@@ -169,7 +169,7 @@ export function useUpdateMessage(
 //   record: RecordWithMessages,
 //   messageId: number,
 // ) {
-//   const { sessionUser } = useAuth();
+//   const sessionUser = useSessionUser();
 //   const utils = api.useUtils();
 
 //   return api.reaction.react.useMutation<{

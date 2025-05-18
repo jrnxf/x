@@ -7,14 +7,20 @@ import {
   SiYoutube,
 } from "@icons-pack/react-simple-icons";
 import { Link } from "@tanstack/react-router";
+import { Suspense } from "react";
 
-import { useAuth } from "~/components/auth-provider";
+import { useSessionUser } from "~/lib/session";
 import { Globe } from "~/components/globe";
 import { SocialLink } from "~/components/social-link";
+import { Tray, TrayContent, TrayTitle, TrayTrigger } from "~/components/tray";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
+import { DialogHeader } from "~/components/ui/dialog";
 import { FlagEmoji } from "~/components/ui/flag-emoji";
+import { Skeleton } from "~/components/ui/skeleton";
 import { WrappedBadges } from "~/components/wrapped-badges";
+import { useFollows } from "~/lib/hooks/users";
+import { useSessionUser } from "~/lib/session";
 // import { useFollows } from "~/lib/hooks/users";
 import { cn, removeNullish } from "~/lib/utils";
 import { type getUser } from "~/server/fns/users/get";
@@ -25,7 +31,7 @@ export function UserView({
   user: NonNullable<Awaited<ReturnType<typeof getUser.serverFn>>>;
 }) {
   const { disciplines, socials } = user;
-  const { sessionUser } = useAuth();
+  const sessionUser = useSessionUser();
 
   return (
     <div className="@container relative mx-auto flex w-full max-w-2xl grow flex-col overflow-auto">
@@ -89,9 +95,9 @@ export function UserView({
             <span className="truncate">{user.name}</span>
           </h1>
 
-          {/* <Suspense fallback={<FollowsLoading userId={user.id} />}>
+          <Suspense fallback={<FollowsLoading userId={user.id} />}>
             <Follows userId={user.id} />
-          </Suspense> */}
+          </Suspense>
 
           {user.location && (
             <div className="flex max-w-full items-center gap-2 leading-none">
@@ -135,106 +141,103 @@ export function UserView({
   );
 }
 
-// function Follows({ userId }: { userId: number }) {
-//   const { action, authUserFollowsUser, data, isPending } = useFollows({
-//     userId,
-//   });
+function Follows({ userId }: { userId: number }) {
+  const { action, authUserFollowsUser, data, isPending } = useFollows({
+    userId,
+  });
 
-//   const { sessionUser } = useAuth();
+  const sessionUser = useSessionUser();
 
-//   const showActionButton = sessionUser && sessionUser.id !== userId;
-//   return (
-//     <div className="flex flex-col items-center gap-2">
-//       <div className="flex items-center gap-2">
-//         <Tray>
-//           <TrayTrigger asChild>
-//             <Button size="sm" variant="secondary">
-//               {data.followers.count} followers
-//             </Button>
-//           </TrayTrigger>
-//           <TrayContent>
-//             <DialogHeader>
-//               <TrayTitle>Followers</TrayTitle>
-//             </DialogHeader>
-//             <UsersList users={data.followers.users} />
-//           </TrayContent>
-//         </Tray>
-//         <Tray>
-//           <TrayTrigger asChild>
-//             <Button size="sm" variant="secondary">
-//               {data.following.count} following
-//             </Button>
-//           </TrayTrigger>
-//           <TrayContent>
-//             <DialogHeader>
-//               <TrayTitle>Following</TrayTitle>
-//             </DialogHeader>
-//             <UsersList users={data.following.users} />
-//           </TrayContent>
-//         </Tray>
-//       </div>
-//       {showActionButton && (
-//         <Button disabled={isPending} onClick={() => action({ userId })}>
-//           {authUserFollowsUser ? "Unfollow" : "Follow"}
-//         </Button>
-//       )}
-//     </div>
-//   );
-// }
+  const showActionButton = sessionUser && sessionUser.id !== userId;
+  return (
+    <div className="flex flex-col items-center gap-2">
+      <div className="flex items-center gap-2">
+        <Tray>
+          <TrayTrigger asChild>
+            <Button size="sm" variant="secondary">
+              {data.followers.count} followers
+            </Button>
+          </TrayTrigger>
+          <TrayContent>
+            <DialogHeader>
+              <TrayTitle>Followers</TrayTitle>
+            </DialogHeader>
+            <UsersList users={data.followers.users} />
+          </TrayContent>
+        </Tray>
+        <Tray>
+          <TrayTrigger asChild>
+            <Button size="sm" variant="secondary">
+              {data.following.count} following
+            </Button>
+          </TrayTrigger>
+          <TrayContent>
+            <DialogHeader>
+              <TrayTitle>Following</TrayTitle>
+            </DialogHeader>
+            <UsersList users={data.following.users} />
+          </TrayContent>
+        </Tray>
+      </div>
+      {showActionButton && (
+        <Button
+          disabled={isPending}
+          onClick={() => action({ data: { userId } })}
+        >
+          {authUserFollowsUser ? "Unfollow" : "Follow"}
+        </Button>
+      )}
+    </div>
+  );
+}
 
-// function FollowsLoading({ userId }: { userId: number }) {
-//   const { sessionUser } = useAuth();
+function FollowsLoading({ userId }: { userId: number }) {
+  const sessionUser = useSessionUser();
 
-//   const showActionButton = sessionUser && sessionUser.id !== userId;
+  const showActionButton = sessionUser && sessionUser.id !== userId;
 
-//   return (
-//     <div className="flex flex-col items-center gap-2">
-//       <div className="flex items-center gap-2">
-//         <Button size="sm" variant="secondary">
-//           <Skeleton className="h-4 w-5" />
-//           followers
-//         </Button>
-//         <Button size="sm" variant="secondary">
-//           <Skeleton className="h-4 w-5" />
-//           following
-//         </Button>
-//       </div>
-//       {showActionButton && (
-//         <Skeleton>
-//           <Button>Follow</Button>
-//         </Skeleton>
-//       )}
-//     </div>
-//   );
-// }
+  return (
+    <div className="flex flex-col items-center gap-2">
+      <div className="flex items-center gap-2">
+        <Button size="sm" variant="secondary">
+          <Skeleton className="h-4 w-5" />
+          followers
+        </Button>
+        <Button size="sm" variant="secondary">
+          <Skeleton className="h-4 w-5" />
+          following
+        </Button>
+      </div>
+      {showActionButton && (
+        <Skeleton>
+          <Button>Follow</Button>
+        </Skeleton>
+      )}
+    </div>
+  );
+}
 
-// function UsersList({
-//   users,
-// }: {
-//   users: { avatarUrl: null | string; id: null | number; name: null | string }[];
-// }) {
-//   return (
-//     <div className="flex max-h-[300px] flex-col gap-2 overflow-y-auto">
-//       {users.map((user) => {
-//         if (!user.name || !user.id) {
-//           return null;
-//         }
-//         return (
-//           <div className="flex items-center gap-2" key={user.id}>
-//             <Avatar className="size-6 rounded-lg">
-//               <AvatarImage
-//                 alt={user.name}
-//                 height={28}
-//                 quality={70}
-//                 src={user.avatarUrl}
-//                 width={28}
-//               />
-//               <AvatarFallback className="text-xs" name={user.name} />
-//             </Avatar>
-//             <p className="truncate text-base">{user.name}</p>
-//           </div>
-//         );
-//       })}
-//     </div>
-//   );
-// }
+function UsersList({
+  users,
+}: {
+  users: { avatarUrl: null | string; id: null | number; name: null | string }[];
+}) {
+  return (
+    <div className="flex max-h-[300px] flex-col gap-2 overflow-y-auto">
+      {users.map((user) => {
+        if (!user.name || !user.id) {
+          return null;
+        }
+        return (
+          <div className="flex items-center gap-2" key={user.id}>
+            <Avatar className="size-6 rounded-lg">
+              <AvatarImage alt={user.name} src={user.avatarUrl} />
+              <AvatarFallback className="text-xs" name={user.name} />
+            </Avatar>
+            <p className="truncate text-base">{user.name}</p>
+          </div>
+        );
+      })}
+    </div>
+  );
+}

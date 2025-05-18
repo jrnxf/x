@@ -1,8 +1,8 @@
-import { useAuth } from "~/components/auth-provider";
+import { useSessionUser } from "~/lib/session";
 import { api } from "~/trpc/react";
 
 export function useLikeUnlikePost(postId: number) {
-  const { sessionUser } = useAuth();
+  const sessionUser = useSessionUser();
 
   const utilities = api.useUtils();
 

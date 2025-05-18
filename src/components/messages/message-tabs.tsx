@@ -2,7 +2,7 @@ import { Link } from "@tanstack/react-router";
 
 import type { RecordWithLikes } from "~/models/likes";
 
-import { useAuth } from "~/components/auth-provider";
+import { useSessionUser } from "~/lib/session";
 import { Button } from "~/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { type RouterOutputs } from "~/trpc/react";
@@ -27,7 +27,7 @@ export function MessageTabs({
   //   };
   // };
 }) {
-  const { sessionUser } = useAuth();
+  const sessionUser = useSessionUser();
 
   const isUserMessage = Boolean(
     sessionUser && sessionUser.id === message.user.id,

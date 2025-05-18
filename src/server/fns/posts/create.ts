@@ -25,8 +25,8 @@ const schema = createUpdatePostSchema;
 const serverFn = createServerFn({
   method: "POST",
 })
-  .middleware([authMiddleware])
   .validator(schema)
+  .middleware([authMiddleware])
   .handler(async ({ context, data }) => {
     const [post] = await db
       .insert(posts)

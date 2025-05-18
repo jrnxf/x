@@ -1,7 +1,7 @@
 import { ChevronDownIcon } from "lucide-react";
 import { useRef } from "react";
 
-import { useAuth } from "~/components/auth-provider";
+import { useSessionUser } from "~/lib/session";
 import { Button } from "~/components/ui/button";
 import {
   DropdownMenu,
@@ -35,10 +35,10 @@ export function RecordOptions({
     };
   };
 }) {
-  const { isAuthenticated, sessionUser } = useAuth();
+  const sessionUser = useSessionUser();
   const menuTriggerReference = useRef<HTMLButtonElement>(null);
 
-  if (!isAuthenticated && record.likes.length === 0) {
+  if (!sessionUser && record.likes.length === 0) {
     return null;
   }
 
@@ -64,7 +64,7 @@ export function RecordOptions({
       </DropdownMenuTrigger>
       <DropdownMenuContent collisionPadding={8}>
         <DropdownMenuGroup>
-          {isAuthenticated && (
+          {sessionUser && (
             <DropdownMenuItem
               onClick={() => {
                 onLikeUnlike(isLikedByAuthUser ? "unlike" : "like");
