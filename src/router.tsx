@@ -1,17 +1,64 @@
 import { createRouter as createTanStackRouter } from "@tanstack/react-router";
+import superjson from "superjson";
 import { routerWithQueryClient } from "@tanstack/react-router-with-query";
 
 import { CatchBoundary } from "./components/catch-boundary";
 import { NotFound } from "./components/not-found";
 import { routeTree } from "./routeTree.gen";
-import * as TanstackQuery from "./integrations/tanstack-query/root-provider";
+import { QueryClient } from "@tanstack/react-query";
+import { createIsomorphicFn } from "@tanstack/react-start";
+import { getHeaders } from "@tanstack/react-start/server";
+import { createTRPCClient, httpBatchLink } from "@trpc/client";
+import { type TRPCRouter } from "~/integrations/trpc/router";
+import { createTRPCOptionsProxy } from "@trpc/tanstack-react-query";
+import { TRPCProvider } from "~/integrations/trpc/react";
+
+const getUrl = () => {
+  const base = (() => {
+    if (typeof globalThis.window !== "undefined") return "";
+    return `http://localhost:${process.env.PORT ?? 3000}`;
+  })();
+  return `${base}/api/trpc`;
+};
+
+const getIncomingHeaders = createIsomorphicFn()
+  .client(() => ({}))
+  .server(() => getHeaders());
 
 export function createRouter() {
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      dehydrate: { serializeData: superjson.serialize },
+      hydrate: { deserializeData: superjson.deserialize },
+    },
+  });
+
+  const trpcClient = createTRPCClient<TRPCRouter>({
+    links: [
+      httpBatchLink({
+        // https://discord-questions.trpc.io/m/1354258180456321135
+        headers: () => {
+          console.log("headers");
+          const headers = getIncomingHeaders();
+          return headers;
+        },
+        transformer: superjson,
+        url: getUrl(),
+      }),
+    ],
+  });
+
+  const serverHelpers = createTRPCOptionsProxy({
+    client: trpcClient,
+    queryClient: queryClient,
+  });
+
   const router = routerWithQueryClient(
     createTanStackRouter({
       routeTree,
       context: {
-        ...TanstackQuery.getContext(),
+        trpc: serverHelpers,
+        queryClient,
         session: {},
       },
       defaultPreload: "intent",
@@ -29,11 +76,13 @@ export function createRouter() {
       defaultStructuralSharing: true,
       Wrap: (props: { children: React.ReactNode }) => {
         return (
-          <TanstackQuery.Provider>{props.children}</TanstackQuery.Provider>
+          <TRPCProvider trpcClient={trpcClient} queryClient={queryClient}>
+            {props.children}
+          </TRPCProvider>
         );
       },
     }),
-    TanstackQuery.getContext().queryClient,
+    queryClient,
   );
 
   return router;

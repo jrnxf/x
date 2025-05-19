@@ -1,14 +1,11 @@
 import { asc, eq } from "drizzle-orm";
 
+import { type TRPCRouterRecord } from "@trpc/server";
 import { chatMessages, postMessages } from "~/db/schema";
+import { authProcedure, publicProcedure } from "~/integrations/trpc/init";
 import { baseMessageSchema, createEditMessageSchema } from "~/models/messages";
-import {
-  authProcedure,
-  createTRPCRouter,
-  publicProcedure,
-} from "~/integrations/trpc/init";
 
-export const messagesRouter = createTRPCRouter({
+export const messagesRouter = {
   create: authProcedure
     .input(createEditMessageSchema)
     .mutation(async ({ ctx, input }) => {
@@ -148,4 +145,4 @@ export const messagesRouter = createTRPCRouter({
           .returning();
       }
     }),
-});
+} satisfies TRPCRouterRecord;

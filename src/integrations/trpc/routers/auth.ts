@@ -1,18 +1,14 @@
+import { type TRPCRouterRecord } from "@trpc/server";
 import bcrypt from "bcryptjs";
 import { eq } from "drizzle-orm";
 
 import { userLocations, userSocials, users } from "~/db/schema";
-import {
-  authProcedure,
-  createTRPCRouter,
-  publicProcedure,
-} from "~/integrations/trpc/init";
+import { authProcedure, publicProcedure } from "~/integrations/trpc/init";
 import { loginSchema } from "~/models/auth";
 import { useServerSession } from "~/server/session";
 
-export const authRouter = createTRPCRouter({
+export const authRouter = {
   login: publicProcedure.input(loginSchema).mutation(async ({ ctx, input }) => {
-    console.log("logging in with input", input);
     const userWithPassword = await ctx.db.query.users.findFirst({
       columns: {
         avatarUrl: true,
@@ -53,7 +49,7 @@ export const authRouter = createTRPCRouter({
       sessionUser: user,
     };
   }),
-  logout: authProcedure.mutation(async () => {
+  logout: publicProcedure.mutation(async () => {
     const session = await useServerSession();
     await session.clear();
   }),
@@ -93,4 +89,4 @@ export const authRouter = createTRPCRouter({
     }
     return user;
   }),
-});
+} satisfies TRPCRouterRecord;

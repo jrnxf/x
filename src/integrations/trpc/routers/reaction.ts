@@ -1,10 +1,11 @@
 import { and, eq } from "drizzle-orm";
 
+import { type TRPCRouterRecord } from "@trpc/server";
 import { chatMessageLikes, postLikes, postMessageLikes } from "~/db/schema";
+import { authProcedure } from "~/integrations/trpc/init";
 import { likeUnlikeSchema } from "~/models/likes";
-import { authProcedure, createTRPCRouter } from "~/integrations/trpc/init";
 
-export const reactionRouter = createTRPCRouter({
+export const reactionRouter = {
   react: authProcedure
     .input(likeUnlikeSchema)
     .mutation(async ({ ctx, input }) => {
@@ -63,4 +64,4 @@ export const reactionRouter = createTRPCRouter({
         }
       }
     }),
-});
+} satisfies TRPCRouterRecord;

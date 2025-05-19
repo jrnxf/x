@@ -11,7 +11,11 @@ function handler({ request }: { request: Request }) {
     req: request,
     router: trpcRouter,
     endpoint: "/api/trpc",
-    createContext: () => createTRPCContext({ headers: heads }),
+    createContext: async (opts) => {
+      return createTRPCContext({
+        headers: opts.req.headers,
+      });
+    },
   });
 }
 

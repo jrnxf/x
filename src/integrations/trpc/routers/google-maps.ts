@@ -4,11 +4,12 @@ import {
 } from "@googlemaps/google-maps-services-js";
 import { z } from "zod";
 
+import { type TRPCRouterRecord } from "@trpc/server";
+import { authProcedure } from "~/integrations/trpc/init";
 import { env } from "~/lib/env";
-import { authProcedure, createTRPCRouter } from "~/integrations/trpc/init";
 import { googleClient } from "~/server/clients/google";
 
-export const googleMapsRouter = createTRPCRouter({
+export const googleMapsRouter = {
   cities: authProcedure
     .input(
       z.object({
@@ -72,4 +73,4 @@ export const googleMapsRouter = createTRPCRouter({
         lng: geometry.location.lng,
       };
     }),
-});
+} satisfies TRPCRouterRecord;

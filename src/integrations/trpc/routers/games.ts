@@ -1,19 +1,16 @@
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 
+import { type TRPCRouterRecord } from "@trpc/server";
 import { muxVideos, riuSets, riuSubmissions, rius, users } from "~/db/schema";
+import { authProcedure, publicProcedure } from "~/integrations/trpc/init";
 import {
   createRiuSetSchema,
   createRiuSubmissionSchema,
   editRiuSetSchema,
 } from "~/models/games";
-import {
-  authProcedure,
-  createTRPCRouter,
-  publicProcedure,
-} from "~/integrations/trpc/init";
 
-export const gamesRouter = createTRPCRouter({
+export const gamesRouter = {
   createRiuSet: authProcedure
     .input(createRiuSetSchema)
     .mutation(async ({ ctx, input }) => {
@@ -340,4 +337,4 @@ export const gamesRouter = createTRPCRouter({
 
     console.log("created new upcoming riu");
   }),
-});
+} satisfies TRPCRouterRecord;

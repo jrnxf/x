@@ -14,11 +14,6 @@ import { useLogout, useSessionUser } from "~/lib/session";
 
 export function AuthButton() {
   const sessionUser = useSessionUser();
-  console.log("useSessionUser in auth button", sessionUser);
-  // const trpc = useTRPC();
-  // const { data } = useSuspenseQuery(trpc.session.get.queryOptions());
-  // console.log("client side sessionUser", data);
-
   const logout = useLogout();
 
   if (!sessionUser) {
@@ -98,7 +93,13 @@ export function AuthButton() {
           </DropdownMenuPortal>
         </DropdownMenuSub>
          */}
-        <DropdownMenuItem onSelect={logout}>Logout</DropdownMenuItem>
+        <DropdownMenuItem
+          onSelect={() => {
+            logout();
+          }}
+        >
+          Logout
+        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );

@@ -3,6 +3,7 @@ import {
   rootRouteId,
   useNavigate,
   useRouteContext,
+  useRouter,
   useSearch,
 } from "@tanstack/react-router";
 import { z } from "zod";
@@ -34,19 +35,28 @@ export function useSessionFlash() {
 
 export function useLogout() {
   const trpc = useTRPC();
+  const router = useRouter();
   const navigate = useNavigate();
 
   const qc = useQueryClient();
 
   const { mutate } = useMutation(
     trpc.auth.logout.mutationOptions({
+      onMutate: async () => {
+        qc.cancelQueries({ queryKey: trpc.session.get.queryKey() });
+      },
       onSuccess: async () => {
         qc.setQueryData(trpc.session.get.queryKey(), (prev) => ({
           ...prev,
           user: undefined,
         }));
 
+        await router.invalidate();
+
         navigate({ to: "/auth/login" });
+      },
+      onSettled: () => {
+        qc.invalidateQueries({ queryKey: trpc.session.get.queryKey() });
       },
     }),
   );

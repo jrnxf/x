@@ -1,17 +1,13 @@
-import { TRPCError } from "@trpc/server";
+import { TRPCError, type TRPCRouterRecord } from "@trpc/server";
 import { and, count, desc, eq, ilike, lt, or } from "drizzle-orm";
 import { z } from "zod";
 
 import { db } from "~/db";
 import { muxVideos, postLikes, postMessages, posts, users } from "~/db/schema";
+import { authProcedure, publicProcedure } from "~/integrations/trpc/init";
 import { createUpdatePostSchema } from "~/models/posts";
-import {
-  authProcedure,
-  createTRPCRouter,
-  publicProcedure,
-} from "~/integrations/trpc/init";
 
-export const postRouter = createTRPCRouter({
+export const postRouter = {
   create: authProcedure
     .input(createUpdatePostSchema)
     .mutation(async ({ ctx, input }) => {
@@ -190,4 +186,4 @@ export const postRouter = createTRPCRouter({
 
       return post;
     }),
-});
+} satisfies TRPCRouterRecord;

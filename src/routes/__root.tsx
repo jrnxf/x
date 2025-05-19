@@ -26,14 +26,13 @@ export interface RouterAppContext {
 
 export const Route = createRootRouteWithContext<RouterAppContext>()({
   beforeLoad: async ({ context }) => {
-    const session = await context.queryClient.fetchQuery(
+    const session = await context.queryClient.ensureQueryData(
       context.trpc.session.get.queryOptions(),
     );
 
-    console.log("bf >> session id", session.id);
-    console.log("bf >> session user", session.user);
-
-    return { session };
+    return {
+      session,
+    };
   },
   component: RootComponent,
   head: () => ({

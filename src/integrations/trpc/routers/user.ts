@@ -1,4 +1,4 @@
-import { TRPCError } from "@trpc/server";
+import { TRPCError, type TRPCRouterRecord } from "@trpc/server";
 import { and, asc, eq, gt, ilike, sql } from "drizzle-orm";
 import { z } from "zod";
 
@@ -10,14 +10,10 @@ import {
   userSocials,
   users,
 } from "~/db/schema";
+import { authProcedure, publicProcedure } from "~/integrations/trpc/init";
 import { updateUserSchema } from "~/models/users";
-import {
-  authProcedure,
-  createTRPCRouter,
-  publicProcedure,
-} from "~/integrations/trpc/init";
 
-export const userRouter = createTRPCRouter({
+export const userRouter = {
   all: publicProcedure.query(async () => {
     return await db
       .select({
@@ -231,4 +227,4 @@ export const userRouter = createTRPCRouter({
 
       await Promise.all(promises);
     }),
-});
+} satisfies TRPCRouterRecord;

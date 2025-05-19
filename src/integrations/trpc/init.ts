@@ -19,7 +19,6 @@ import { useServerSession } from "~/server/session";
  * @see https://trpc.io/docs/server/context
  */
 export const createTRPCContext = async (opts: { headers: Headers }) => {
-  // const user = await checkSession();
   const session = await useServerSession();
 
   return {
@@ -107,7 +106,7 @@ async function loggingMiddleware(opts: any) {
 
   const time = durationMs > 1000 ? `${durationMs / 1000}s` : `${durationMs}ms`;
 
-  const source = opts.ctx.headers.get("x-trpc-source");
+  const source = opts.ctx?.headers?.get?.("x-trpc-source");
 
   const message = `${source ?? "unknown"}>${opts.type}>${opts.path}: ${time}`;
 
