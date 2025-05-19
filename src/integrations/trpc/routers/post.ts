@@ -56,10 +56,10 @@ export const postRouter = createTRPCRouter({
       await db.delete(posts).where(eq(posts.id, postId)).returning();
     }),
   get: publicProcedure
-    .input(z.number())
-    .query(async ({ ctx, input: postId }) => {
+    .input(z.object({ id: z.number() }))
+    .query(async ({ ctx, input: { id } }) => {
       const post = await ctx.db.query.posts.findFirst({
-        where: eq(posts.id, postId),
+        where: eq(posts.id, id),
         with: {
           likes: {
             with: {

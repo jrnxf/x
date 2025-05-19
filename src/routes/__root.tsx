@@ -16,7 +16,7 @@ import { Button } from "~/components/ui/button";
 import { Toaster } from "~/components/ui/sonner";
 import { type TRPCRouter } from "~/integrations/trpc/router";
 import { type HausSession } from "~/lib/session";
-import { getSession } from "~/server/fns/session/get";
+import { useServerSession } from "~/server/session";
 import appCss from "~/styles.css?url";
 
 export interface RouterAppContext {
@@ -28,7 +28,7 @@ export interface RouterAppContext {
 export const Route = createRootRouteWithContext<RouterAppContext>()({
   beforeLoad: async ({ context }) => {
     const session = await context.queryClient.ensureQueryData(
-      getSession.queryOptions(),
+      context.trpc.session.get.queryOptions(),
     );
     return { session };
   },

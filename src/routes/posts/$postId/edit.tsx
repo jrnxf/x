@@ -4,15 +4,13 @@ import {
   useSuspenseQuery,
 } from "@tanstack/react-query";
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
-import { z } from "zod";
 import { merge } from "lodash-es";
+import { z } from "zod";
 
-import { PostForm } from "~/components/forms/post";
-import { POSTS_KEY } from "~/lib/keys";
-import { getPost } from "~/server/fns/posts/get";
-import { updatePost } from "~/server/fns/posts/update";
-import { setFlash } from "~/server/fns/session/flash/set";
 import { toast } from "sonner";
+import { PostForm } from "~/components/forms/post";
+import { useTRPC } from "~/integrations/trpc/react";
+import { setFlash } from "~/server/fns/session/flash/set";
 
 const pathParametersSchema = z.object({
   postId: z.coerce.number(),
@@ -25,7 +23,7 @@ export const Route = createFileRoute("/posts/$postId/edit")({
   },
   loader: async ({ context, params: { postId } }) => {
     const post = await context.queryClient.ensureQueryData(
-      getPost.queryOptions({ postId }),
+      context.trpc.post.get.queryOptions({ id: postId }),
     );
     if (!post) {
       await setFlash.serverFn({ data: "Post not found" });
@@ -40,48 +38,57 @@ export const Route = createFileRoute("/posts/$postId/edit")({
 
 function RouteComponent() {
   const { postId } = Route.useParams();
-  const { data: post } = useSuspenseQuery(getPost.queryOptions({ postId }));
+  const trpc = useTRPC();
+
+  const { data: post } = useSuspenseQuery(
+    trpc.post.get.queryOptions({ id: postId }),
+  );
+
   const navigate = useNavigate();
 
   const qc = useQueryClient();
 
-  const { mutate } = useMutation({
-    mutationFn: updatePost.serverFn,
-    onMutate: ({ data }) => {
-      qc.cancelQueries({
-        queryKey: [POSTS_KEY, postId],
-      });
+  const { mutate } = useMutation(
+    trpc.post.update.mutationOptions({
+      onMutate: (data) => {
+        qc.cancelQueries({
+          queryKey: trpc.post.get.queryKey({ id: postId }),
+        });
 
-      const prev = qc.getQueryData([POSTS_KEY, postId]);
+        const prev = qc.getQueryData(trpc.post.get.queryKey({ id: postId }));
 
-      qc.setQueryData([POSTS_KEY, postId], (prev) => merge(prev, data));
+        qc.setQueryData(trpc.post.get.queryKey({ id: postId }), (prev) =>
+          merge(prev, data),
+        );
 
-      navigate({ to: "/posts/$postId", params: { postId } });
+        navigate({ to: "/posts/$postId", params: { postId } });
 
-      return {
-        previousData: prev,
-      };
-    },
-    onSuccess: async () => {
-      await qc.refetchQueries({
-        exact: true,
-        queryKey: [POSTS_KEY, {}],
-      });
-    },
-    onError: (error, _variables, context) => {
-      console.error(error);
-      if (context) {
-        qc.setQueryData([POSTS_KEY, postId], context.previousData);
-        toast.error("Failed to update post");
-        navigate({ to: "/posts/$postId/edit", params: { postId } });
-      }
-    },
-    onSettled: () => {
-      qc.invalidateQueries({
-        queryKey: [POSTS_KEY, postId],
-      });
-    },
-  });
+        return {
+          prev,
+        };
+      },
+      onSuccess: () => {
+        // no need to await - fire and forget. will almost definitely finish
+        // before the user can navigate there
+        qc.refetchQueries({
+          queryKey: trpc.post.list.queryKey(),
+        });
+      },
+      onError: (error, _variables, context) => {
+        console.error(error);
+        if (context) {
+          qc.setQueryData(trpc.post.get.queryKey({ id: postId }), context.prev);
+          toast.error("Failed to update post");
+          navigate({ to: "/posts/$postId/edit", params: { postId } });
+        }
+      },
+      onSettled: () => {
+        qc.invalidateQueries({
+          queryKey: trpc.post.get.queryKey({ id: postId }),
+        });
+      },
+    }),
+  );
 
   if (!post) {
     return null;
@@ -103,10 +110,8 @@ function RouteComponent() {
         }}
         onSubmit={(data) => {
           mutate({
-            data: {
-              ...data,
-              postId,
-            },
+            ...data,
+            postId,
           });
         }}
       />

@@ -1,6 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { Loader2Icon } from "lucide-react";
 import { FormProvider, useForm } from "react-hook-form";
 import { z } from "zod";
@@ -9,8 +8,8 @@ import { Button } from "~/components/ui/button";
 import { FormMessage } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
-import { useLogin, type HausSession } from "~/lib/session";
-import { login } from "~/server/fns/auth/login";
+import { useLogin } from "~/lib/session";
+import { loginSchema } from "~/models/auth";
 
 export const Route = createFileRoute("/auth/login")({
   component: RouteComponent,
@@ -26,13 +25,13 @@ export const Route = createFileRoute("/auth/login")({
 });
 
 function RouteComponent() {
-  const form = useForm<z.infer<typeof login.schema>>({
+  const form = useForm<z.infer<typeof loginSchema>>({
     defaultValues: {
       email: "",
       password: "",
-      redirect: "/auth/me",
+      redirect: "/",
     },
-    resolver: zodResolver(login.schema),
+    resolver: zodResolver(loginSchema),
   });
 
   const {
@@ -51,7 +50,7 @@ function RouteComponent() {
           onSubmit={(event) => {
             event.preventDefault();
             handleSubmit((data) => {
-              mutate({ data });
+              mutate(data);
             })(event);
           }}
         >

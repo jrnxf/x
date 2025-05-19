@@ -1,3 +1,4 @@
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
@@ -10,10 +11,14 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
+import { useTRPC } from "~/integrations/trpc/react";
 import { useLogout, useSessionUser } from "~/lib/session";
 
 export function AuthButton() {
   const sessionUser = useSessionUser();
+  // const trpc = useTRPC();
+  // const { data } = useSuspenseQuery(trpc.session.get.queryOptions());
+  // console.log("client side sessionUser", data);
 
   const logout = useLogout();
 

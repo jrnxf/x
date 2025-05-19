@@ -25,6 +25,12 @@ export const trpcClient = createTRPCClient<TRPCRouter>({
         return heads;
       },
       url: getUrl(),
+      fetch: (url, options) => {
+        return fetch(url, {
+          ...options,
+          credentials: "include",
+        });
+      },
     }),
   ],
 });

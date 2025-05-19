@@ -1,6 +1,7 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { z } from "zod";
+import { useTRPC } from "~/integrations/trpc/react";
 
 import { getPost } from "~/server/fns/posts/get";
 import { setFlash } from "~/server/fns/session/flash/set";
@@ -17,7 +18,7 @@ export const Route = createFileRoute("/posts/$postId/")({
   },
   loader: async ({ context, params: { postId } }) => {
     const post = await context.queryClient.ensureQueryData(
-      getPost.queryOptions({ postId }),
+      context.trpc.post.get.queryOptions({ id: postId }),
     );
 
     if (!post) {
@@ -29,7 +30,10 @@ export const Route = createFileRoute("/posts/$postId/")({
 
 function RouteComponent() {
   const { postId } = Route.useParams();
-  const { data } = useSuspenseQuery(getPost.queryOptions({ postId }));
+  const trpc = useTRPC();
+  const { data: post } = useSuspenseQuery(
+    trpc.post.get.queryOptions({ id: postId }),
+  );
 
   return (
     <div className="flex grow flex-col">
@@ -40,7 +44,7 @@ function RouteComponent() {
         <PostView
           initialData={{
             messages: [],
-            post: data,
+            post,
           }}
           postId={postId}
         />

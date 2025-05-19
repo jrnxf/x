@@ -9,7 +9,8 @@ import { useServerSession } from "~/server/session";
 import { baseAuthSchema } from "~/server/fns/auth/shared";
 
 export const schema = baseAuthSchema.extend({
-  redirect: z.string().optional().default("/auth/me"),
+  // redirect: z.string().optional().default("/auth/me"),
+  redirect: z.string().optional().default("/"),
 });
 
 export const serverFn = createServerFn({ method: "POST" })

@@ -1,9 +1,62 @@
+import bcrypt from "bcryptjs";
 import { eq } from "drizzle-orm";
 
 import { userLocations, userSocials, users } from "~/db/schema";
-import { authProcedure, createTRPCRouter } from "~/integrations/trpc/init";
+import {
+  authProcedure,
+  createTRPCRouter,
+  publicProcedure,
+} from "~/integrations/trpc/init";
+import { loginSchema } from "~/models/auth";
+import { useServerSession } from "~/server/session";
 
 export const authRouter = createTRPCRouter({
+  login: publicProcedure.input(loginSchema).mutation(async ({ ctx, input }) => {
+    console.log("logging in with input", input);
+    const userWithPassword = await ctx.db.query.users.findFirst({
+      columns: {
+        avatarUrl: true,
+        email: true,
+        id: true,
+        name: true,
+        password: true,
+      },
+      where: eq(users.email, input.email),
+    });
+
+    if (!userWithPassword) {
+      return {
+        errorMessage: "User not found",
+        success: false,
+      } as const;
+    }
+
+    const { password, ...user } = userWithPassword;
+
+    const isCorrectPassword = await bcrypt.compare(input.password, password);
+
+    if (!isCorrectPassword) {
+      return {
+        errorMessage: "Invalid credentials",
+        success: false,
+      } as const;
+    }
+
+    const session = await useServerSession();
+
+    await session.update({ user });
+
+    console.log("session in login", session.data);
+
+    return {
+      success: true as const,
+      sessionUser: user,
+    };
+  }),
+  logout: authProcedure.mutation(async () => {
+    const session = await useServerSession();
+    await session.clear();
+  }),
   getAuthUser: authProcedure.query(async ({ ctx }) => {
     const userId = ctx.user.id;
     const [user] = await ctx.db
