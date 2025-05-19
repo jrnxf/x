@@ -109,7 +109,7 @@ async function loggingMiddleware(opts: any) {
 
   const source = opts.ctx.headers.get("x-trpc-source");
 
-  const message = `${source}>${opts.type}>${opts.path}: ${time}`;
+  const message = `${source ?? "unknown"}>${opts.type}>${opts.path}: ${time}`;
 
   console.log(result.ok ? "✅" : "❌", message);
 

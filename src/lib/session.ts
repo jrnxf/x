@@ -24,7 +24,6 @@ export type HausSession = z.infer<typeof hausSessionSchema>;
 
 export function useSessionUser() {
   const { session } = useRouteContext({ from: rootRouteId });
-  console.log("session in useSessionUser", session);
   return session.user;
 }
 

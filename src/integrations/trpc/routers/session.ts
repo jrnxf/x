@@ -6,6 +6,9 @@ export const sessionRouter = createTRPCRouter({
     const session = await useServerSession();
 
     console.log("session in router", session.data);
-    return session.data;
+    return {
+      id: session.id,
+      ...session.data,
+    };
   }),
 });

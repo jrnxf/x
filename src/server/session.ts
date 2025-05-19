@@ -17,8 +17,8 @@ export async function useServerSession() {
   const heads = getHeaders();
   console.log({
     sessionId: session.id,
-    sessionData: session.data,
-    heads,
+    sessionData: { ...session.data },
+    trpcSource: heads["x-trpc-source"],
   });
 
   return session;

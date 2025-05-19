@@ -16,7 +16,6 @@ import { Button } from "~/components/ui/button";
 import { Toaster } from "~/components/ui/sonner";
 import { type TRPCRouter } from "~/integrations/trpc/router";
 import { type HausSession } from "~/lib/session";
-import { useServerSession } from "~/server/session";
 import appCss from "~/styles.css?url";
 
 export interface RouterAppContext {
@@ -27,9 +26,13 @@ export interface RouterAppContext {
 
 export const Route = createRootRouteWithContext<RouterAppContext>()({
   beforeLoad: async ({ context }) => {
-    const session = await context.queryClient.ensureQueryData(
+    const session = await context.queryClient.fetchQuery(
       context.trpc.session.get.queryOptions(),
     );
+
+    console.log("bf >> session id", session.id);
+    console.log("bf >> session user", session.user);
+
     return { session };
   },
   component: RootComponent,
@@ -59,7 +62,6 @@ function RootComponent() {
   return (
     <RootDocument>
       <Outlet />
-      <ReactQueryDevtools buttonPosition="bottom-left" />
     </RootDocument>
   );
 }
@@ -118,6 +120,8 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
           </main>
         </div>
         {/* </SidebarProvider> */}
+        <ReactQueryDevtools buttonPosition="bottom-left" />
+
         <Toaster />
         <Scripts />
       </body>
