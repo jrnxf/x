@@ -3,8 +3,9 @@ import superjson from "superjson";
 import { ZodError } from "zod";
 
 import { db } from "~/db";
+import { timingMiddleware } from "~/integrations/trpc/middleware";
+import { type EnhancedErrorShape } from "~/integrations/trpc/types";
 import { useServerSession } from "~/server/session";
-// import { checkSession } from "~/lib/session";
 
 /**
  * 1. CONTEXT
@@ -29,46 +30,23 @@ export const createTRPCContext = async (opts: { headers: Headers }) => {
 };
 
 /**
- * 2. INITIALIZATION
  *
  * This is where the tRPC API is initialized, connecting the context and transformer. We also parse
  * ZodErrors so that you get typesafety on the frontend if your procedure fails due to validation
  * errors on the backend.
  */
-const t = initTRPC.context<typeof createTRPCContext>().create({
+export const t = initTRPC.context<typeof createTRPCContext>().create({
   errorFormatter({ error, shape }) {
-    return {
-      ...shape,
-      data: {
-        ...shape.data,
-        zodError:
-          error.cause instanceof ZodError ? error.cause.flatten() : null,
-      },
-    };
+    const formattedError: EnhancedErrorShape = shape;
+
+    if (error.cause instanceof ZodError) {
+      formattedError.data.zodError = error.cause.flatten();
+    }
+
+    return formattedError;
   },
   transformer: superjson,
 });
-
-/**
- * 3. ROUTER & PROCEDURE (THE IMPORTANT BIT)
- *
- * These are the pieces you use to build your tRPC API. You should import these a lot in the
- * "/src/server/api/routers" directory.
- */
-
-/**
- * This is how you create new routers and sub-routers in your tRPC API.
- *
- * @see https://trpc.io/docs/router
- */
-export const createTRPCRouter = t.router;
-
-/**
- * 4. PROCEDURES
- *
- * These are the procedures that you use to build your tRPC API. You should import these a lot in the
- * "/src/server/api/routers" directory.
- */
 
 /**
  * Public (unauthenticated) procedure
@@ -77,7 +55,7 @@ export const createTRPCRouter = t.router;
  * guarantee that a user querying is authorized, but you can still access user session data if they
  * are logged in.
  */
-export const publicProcedure = t.procedure.use(loggingMiddleware);
+export const publicProcedure = t.procedure.use(timingMiddleware);
 
 /**
  * Authenticated procedure
@@ -94,23 +72,4 @@ export const authProcedure = t.procedure
       ctx: { ...opts.ctx, user: opts.ctx.user },
     });
   })
-  .use(loggingMiddleware);
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-async function loggingMiddleware(opts: any) {
-  const start = Date.now();
-
-  const result = await opts.next();
-
-  const durationMs = Date.now() - start;
-
-  const time = durationMs > 1000 ? `${durationMs / 1000}s` : `${durationMs}ms`;
-
-  const source = opts.ctx?.headers?.get?.("x-trpc-source");
-
-  const message = `${source ?? "unknown"}>${opts.type}>${opts.path}: ${time}`;
-
-  console.log(result.ok ? "✅" : "❌", message);
-
-  return result;
-}
+  .use(timingMiddleware);

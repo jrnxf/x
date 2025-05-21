@@ -8,8 +8,6 @@ export const APIRoute = createAPIFileRoute("/api/mux/url")({
   GET: async () => {
     const session = await useServerSession();
 
-    console.log("session", session.data.user);
-
     if (!session.data.user) {
       throw new Error("Unauthorized");
     }

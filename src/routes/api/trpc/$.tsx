@@ -4,16 +4,18 @@ import { createTRPCContext } from "~/integrations/trpc/init";
 import { trpcRouter } from "~/integrations/trpc/router";
 
 function handler({ request }: { request: Request }) {
-  const heads = new Headers(request.headers);
-  heads.set("x-trpc-source", "ssr");
-
   return fetchRequestHandler({
     req: request,
     router: trpcRouter,
     endpoint: "/api/trpc",
-    createContext: async (opts) => {
+    onError({ error }) {
+      if (error.code === "INTERNAL_SERVER_ERROR") {
+        // TODO send to sentry
+      }
+    },
+    createContext: async ({ req }) => {
       return createTRPCContext({
-        headers: opts.req.headers,
+        headers: req.headers,
       });
     },
   });

@@ -53,6 +53,7 @@ export const env = createEnv({
     MUX_TOKEN_ID: z.string(),
     MUX_TOKEN_SECRET: z.string(),
     MUX_WEBHOOK_SECRET: z.string(),
+    RESEND_API_KEY: z.string(),
     SESSION_SECRET: z.string(),
     SKRRRT_DATABASE_URL: z.string().optional(),
   },

@@ -6,7 +6,6 @@ export const sessionRouter = {
   get: publicProcedure.query(async () => {
     const session = await useServerSession();
 
-    console.log("session in router", session.data);
     return session.data;
   }),
 } satisfies TRPCRouterRecord;

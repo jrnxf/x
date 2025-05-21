@@ -22,8 +22,13 @@ const getUrl = () => {
 };
 
 const getIncomingHeaders = createIsomorphicFn()
-  .client(() => ({}))
-  .server(() => getHeaders());
+  .client(() => ({
+    "x-trpc-source": "client",
+  }))
+  .server(() => ({
+    ...getHeaders(),
+    "x-trpc-source": "server",
+  }));
 
 export function createRouter() {
   const queryClient = new QueryClient({
@@ -37,11 +42,7 @@ export function createRouter() {
     links: [
       httpBatchLink({
         // https://discord-questions.trpc.io/m/1354258180456321135
-        headers: () => {
-          console.log("headers");
-          const headers = getIncomingHeaders();
-          return headers;
-        },
+        headers: getIncomingHeaders,
         transformer: superjson,
         url: getUrl(),
       }),
@@ -74,13 +75,13 @@ export function createRouter() {
       defaultNotFoundComponent: () => <NotFound />,
 
       defaultStructuralSharing: true,
-      Wrap: (props: { children: React.ReactNode }) => {
-        return (
-          <TRPCProvider trpcClient={trpcClient} queryClient={queryClient}>
-            {props.children}
-          </TRPCProvider>
-        );
-      },
+      Wrap: (props) => (
+        <TRPCProvider
+          trpcClient={trpcClient}
+          queryClient={queryClient}
+          {...props}
+        />
+      ),
     }),
     queryClient,
   );

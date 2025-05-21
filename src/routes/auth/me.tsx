@@ -8,7 +8,6 @@ import { UserView } from "~/views/user";
 export const Route = createFileRoute("/auth/me")({
   component: RouteComponent,
   loader: async ({ context, location }) => {
-    console.log("location", location);
     if (!context.session.user) {
       throw redirect({
         to: "/auth/login",

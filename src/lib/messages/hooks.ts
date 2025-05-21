@@ -2,7 +2,6 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import invariant from "tiny-invariant";
 import { MESSAGES_KEY } from "~/lib/keys";
 import { useSessionUser } from "~/lib/session";
-// import { toast } from "sonner";
 
 import { createMessage } from "~/server/fns/messages/create";
 import { type Message } from "~/server/fns/messages/list";
@@ -19,7 +18,6 @@ export function useCreateMessage(record: RecordWithMessages) {
     onMutate: async (newMessage) => {
       invariant(sessionUser, "sessionUser is required");
 
-      console.log("onMutate", newMessage);
       qc.cancelQueries({
         queryKey: [MESSAGES_KEY, record.type, record.recordId],
       });
@@ -45,7 +43,6 @@ export function useCreateMessage(record: RecordWithMessages) {
             },
           ],
         );
-        console.log("set query data cache");
       }
 
       return { prev };

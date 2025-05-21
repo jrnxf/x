@@ -42,11 +42,17 @@ export const postRouter = {
       });
 
       if (!post) {
-        throw new Error("Post not found");
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Post not found",
+        });
       }
 
       if (post.userId !== userId) {
-        throw new Error("Access denied");
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "Access denied",
+        });
       }
 
       await db.delete(posts).where(eq(posts.id, postId)).returning();

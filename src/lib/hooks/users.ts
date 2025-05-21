@@ -4,14 +4,14 @@ import {
   useSuspenseQuery,
 } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { USER_FOLLOWS_KEY } from "~/lib/keys";
+import { useTRPC } from "~/integrations/trpc/react";
 import { useSessionUser } from "~/lib/session";
 import { createFollow } from "~/server/fns/users/follows/create";
 import { deleteFollow } from "~/server/fns/users/follows/delete";
-import { getFollows } from "~/server/fns/users/follows/get";
 
 export function useFollows({ userId }: { userId: number }) {
-  const { data } = useSuspenseQuery(getFollows.queryOptions({ userId }));
+  const trpc = useTRPC();
+  const { data } = useSuspenseQuery(trpc.user.follows.queryOptions({ userId }));
 
   const qc = useQueryClient();
 
@@ -19,12 +19,12 @@ export function useFollows({ userId }: { userId: number }) {
     mutationFn: createFollow.serverFn,
     onMutate: () => {
       qc.cancelQueries({
-        queryKey: [USER_FOLLOWS_KEY(userId)],
+        queryKey: trpc.user.follows.queryKey({ userId }),
       });
 
-      const prev = qc.getQueryData([USER_FOLLOWS_KEY(userId)]);
+      const prev = qc.getQueryData(trpc.user.follows.queryKey({ userId }));
 
-      qc.setQueryData([USER_FOLLOWS_KEY(userId)], (previous) => {
+      qc.setQueryData(trpc.user.follows.queryKey({ userId }), (previous) => {
         if (previous && sessionUser) {
           return {
             ...previous,
@@ -48,13 +48,16 @@ export function useFollows({ userId }: { userId: number }) {
     onError: (error, _variables, context) => {
       console.error(error);
       if (context) {
-        qc.setQueryData([USER_FOLLOWS_KEY(userId)], context.previousData);
+        qc.setQueryData(
+          trpc.user.follows.queryKey({ userId }),
+          context.previousData,
+        );
         toast.error("Failed to follow user");
       }
     },
     onSettled: () => {
       qc.invalidateQueries({
-        queryKey: [USER_FOLLOWS_KEY(userId)],
+        queryKey: trpc.user.follows.queryKey({ userId }),
       });
     },
   });
@@ -63,12 +66,14 @@ export function useFollows({ userId }: { userId: number }) {
     mutationFn: deleteFollow.serverFn,
     onMutate: () => {
       qc.cancelQueries({
-        queryKey: [USER_FOLLOWS_KEY(userId)],
+        queryKey: trpc.user.follows.queryKey({ userId }),
       });
 
-      const previousData = qc.getQueryData([USER_FOLLOWS_KEY(userId)]);
+      const previousData = qc.getQueryData(
+        trpc.user.follows.queryKey({ userId }),
+      );
 
-      qc.setQueryData([USER_FOLLOWS_KEY(userId)], (previous) => {
+      qc.setQueryData(trpc.user.follows.queryKey({ userId }), (previous) => {
         if (previous && sessionUser) {
           return {
             ...previous,
@@ -87,13 +92,16 @@ export function useFollows({ userId }: { userId: number }) {
     onError: (error, _variables, context) => {
       console.error(error);
       if (context) {
-        qc.setQueryData([USER_FOLLOWS_KEY(userId)], context.previousData);
+        qc.setQueryData(
+          trpc.user.follows.queryKey({ userId }),
+          context.previousData,
+        );
         toast.error("Failed to unfollow user");
       }
     },
     onSettled: () => {
       qc.invalidateQueries({
-        queryKey: [USER_FOLLOWS_KEY(userId)],
+        queryKey: trpc.user.follows.queryKey({ userId }),
       });
     },
   });
