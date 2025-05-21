@@ -6,6 +6,7 @@ import {
   useRouter,
   useSearch,
 } from "@tanstack/react-router";
+import { toast } from "sonner";
 import { z } from "zod";
 import { useTRPC } from "~/integrations/trpc/react";
 
@@ -64,30 +65,32 @@ export function useLogout() {
   return mutate;
 }
 
-export function useLogin() {
+export function useSendMagicLink() {
   const trpc = useTRPC();
   const search = useSearch({ from: "/auth/login" });
 
   const navigate = useNavigate();
 
-  const qc = useQueryClient();
+  // const qc = useQueryClient();
 
-  const loginMutation = useMutation(
-    trpc.auth.login.mutationOptions({
+  const sendMagicLinkMutation = useMutation(
+    trpc.email.sendMagicLink.mutationOptions({
       onSuccess: async (data) => {
-        if (data.success) {
-          qc.setQueryData(trpc.session.get.queryKey(), (prev) => ({
-            ...prev,
-            user: data.sessionUser,
-          }));
+        toast.success("Magic link sent");
+        navigate({ to: "/" });
+        // if (data.success) {
+        //   qc.setQueryData(trpc.session.get.queryKey(), (prev) => ({
+        //     ...prev,
+        //     user: data.sessionUser,
+        //   }));
 
-          const redirectPath = search?.redirect ?? "/";
+        //   const redirectPath = search?.redirect ?? "/";
 
-          navigate({ to: redirectPath });
-        }
+        //   navigate({ to: redirectPath });
+        // }
       },
     }),
   );
 
-  return loginMutation;
+  return sendMagicLinkMutation;
 }

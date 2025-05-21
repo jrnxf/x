@@ -1,5 +1,6 @@
 import { t } from "~/integrations/trpc/init";
 import { authRouter } from "~/integrations/trpc/routers/auth";
+import { emailRouter } from "~/integrations/trpc/routers/email";
 import { gamesRouter } from "~/integrations/trpc/routers/games";
 import { googleMapsRouter } from "~/integrations/trpc/routers/google-maps";
 import { messagesRouter } from "~/integrations/trpc/routers/messages";
@@ -17,5 +18,6 @@ export const trpcRouter = t.router({
   reaction: reactionRouter,
   user: userRouter,
   session: sessionRouter,
+  email: emailRouter,
 });
 export type TRPCRouter = typeof trpcRouter;

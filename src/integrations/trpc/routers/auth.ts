@@ -1,77 +1,11 @@
 import { type TRPCRouterRecord } from "@trpc/server";
-import bcrypt from "bcryptjs";
 import { eq } from "drizzle-orm";
 
 import { userLocations, userSocials, users } from "~/db/schema";
 import { authProcedure, publicProcedure } from "~/integrations/trpc/init";
-import { loginSchema } from "~/models/auth";
 import { useServerSession } from "~/server/session";
-import colors from "yoctocolors";
 
 export const authRouter = {
-  login: publicProcedure.input(loginSchema).mutation(async ({ ctx, input }) => {
-    const start = performance.now();
-
-    console.time("findFirst");
-    const userWithPassword = await ctx.db.query.users.findFirst({
-      columns: {
-        avatarUrl: true,
-        email: true,
-        id: true,
-        name: true,
-        password: true,
-      },
-      where: eq(users.email, input.email),
-    });
-    console.timeEnd("findFirst");
-    if (!userWithPassword) {
-      return {
-        errorMessage: "User not found",
-        success: false,
-      } as const;
-    }
-
-    const { password, ...user } = userWithPassword;
-
-    console.time("bcrypt compare");
-    const isCorrectPassword = await bcrypt.compare(
-      input.password,
-      password,
-      undefined,
-      (percent) => {
-        console.log(colors.bgBlue(`bcrypt compare: ${percent}%`));
-      },
-    );
-    console.timeEnd("bcrypt compare");
-
-    if (!isCorrectPassword) {
-      return {
-        errorMessage: "Invalid credentials",
-        success: false,
-      } as const;
-    }
-
-    console.time("session update");
-    const session = await useServerSession();
-
-    await session.update({ user });
-    console.timeEnd("session update");
-
-    const durationMs = performance.now() - start;
-
-    const totalTime =
-      durationMs > 1000
-        ? colors.red(`${(durationMs / 1000).toFixed(2)}s`)
-        : durationMs > 500
-          ? colors.yellow(`${Math.round(durationMs)}ms`)
-          : colors.green(`${Math.round(durationMs)}ms`);
-
-    console.log(colors.bgGreen(`Login took ${totalTime}`));
-    return {
-      success: true as const,
-      sessionUser: user,
-    };
-  }),
   logout: publicProcedure.mutation(async () => {
     const session = await useServerSession();
     await session.clear();

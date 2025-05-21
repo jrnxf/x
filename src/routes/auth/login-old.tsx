@@ -11,7 +11,7 @@ import { Label } from "~/components/ui/label";
 import { useSendMagicLink } from "~/lib/session";
 import { loginSchema } from "~/models/auth";
 
-export const Route = createFileRoute("/auth/login")({
+export const Route = createFileRoute("/auth/login-old")({
   component: RouteComponent,
   validateSearch: (search) => {
     return z
@@ -28,7 +28,7 @@ function RouteComponent() {
   const form = useForm<z.infer<typeof loginSchema>>({
     defaultValues: {
       email: "",
-      // password: "",
+      password: "",
       redirect: "/",
     },
     resolver: zodResolver(loginSchema),
@@ -50,9 +50,7 @@ function RouteComponent() {
           onSubmit={(event) => {
             event.preventDefault();
             handleSubmit((data) => {
-              mutate({
-                email: data.email,
-              });
+              mutate(data);
             })(event);
           }}
         >
@@ -61,6 +59,16 @@ function RouteComponent() {
             <Input {...register("email")} autoFocus id="email" />
             <FormMessage error={errors.email} />
           </div>
+          <div className="space-y-2">
+            <Label htmlFor="password">Password</Label>
+            <Input {...register("password")} id="password" type="password" />
+            <FormMessage error={errors.password} />
+          </div>
+          {data && data.errorMessage && (
+            <p className="text-destructive mt-2 font-medium">
+              {data.errorMessage}
+            </p>
+          )}
           <div className="flex flex-row-reverse items-center justify-between">
             <Button
               disabled={isPending}
@@ -69,9 +77,10 @@ function RouteComponent() {
               }
               type="submit"
             >
-              <span>
-                {isPending ? "Sending magic link" : "Send magic link"}
-              </span>
+              <span>{isPending ? "Logging in" : "Log in"}</span>
+            </Button>
+            <Button asChild type="button" variant="secondary">
+              <Link to="/auth/register">Register</Link>
             </Button>
           </div>
         </form>

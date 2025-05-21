@@ -88,6 +88,16 @@ export const userSocials = pgTable("user_socials", {
   youtube: text("youtube"),
 });
 
+export const magicLinks = pgTable("magic_links", {
+  email: text("email")
+    .notNull()
+    .references(() => users.email, {
+      onDelete: "cascade",
+    }),
+  expiresAt: timestamp("expires_at").notNull(),
+  id: text("id").primaryKey(),
+});
+
 export const posts = pgTable("posts", {
   content: text("content").notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
@@ -254,6 +264,11 @@ export const usersRelations = relations(users, ({ many, one }) => ({
   location: one(userLocations),
   posts: many(posts),
   socials: one(userSocials),
+  magicLinks: many(magicLinks),
+}));
+
+export const magicLinksRelations = relations(magicLinks, ({ one }) => ({
+  user: one(users, { fields: [magicLinks.email], references: [users.email] }),
 }));
 
 export const locationsRelations = relations(userLocations, ({ one }) => ({
@@ -275,7 +290,7 @@ export const postsRelations = relations(posts, ({ many, one }) => ({
   }),
 }));
 
-export const riuRelations = relations(rius, ({ many }) => ({
+export const riusRelations = relations(rius, ({ many }) => ({
   // likes: many(postLikes),
   sets: many(riuSets),
 }));
