@@ -20,7 +20,7 @@ import { Skeleton } from "~/components/ui/skeleton";
 import { WrappedBadges } from "~/components/wrapped-badges";
 import { useFollows } from "~/lib/hooks/users";
 import { useSessionUser } from "~/lib/session";
-import { cn, removeNullish } from "~/lib/utils";
+import { cn, isDefined } from "~/lib/utils";
 import { type getUser } from "~/server/fns/users/get";
 
 export function UserView({
@@ -117,7 +117,7 @@ export function UserView({
 
           <WrappedBadges content={disciplines} />
 
-          {socials && Object.values(socials).some(removeNullish) && (
+          {socials && Object.values(socials).some(isDefined) && (
             <div className="flex gap-4">
               <SocialLink href={socials.youtube} icon={SiYoutube} />
               <SocialLink href={socials.tiktok} icon={SiTiktok} />

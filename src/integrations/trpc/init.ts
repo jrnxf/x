@@ -5,7 +5,8 @@ import { ZodError } from "zod";
 import { db } from "~/db";
 import { timingMiddleware } from "~/integrations/trpc/middleware";
 import { type EnhancedErrorShape } from "~/integrations/trpc/types";
-import { useServerSession } from "~/server/session";
+import { useServerSession } from "~/lib/session";
+import { isDefined } from "~/lib/utils";
 
 /**
  * 1. CONTEXT
@@ -19,12 +20,19 @@ import { useServerSession } from "~/server/session";
  *
  * @see https://trpc.io/docs/server/context
  */
-export const createTRPCContext = async (opts: { headers: Headers }) => {
+export const createTRPCContext = async (opts: {
+  req: {
+    headers: Headers;
+  };
+  res: {
+    headers: Headers;
+  };
+}) => {
   const session = await useServerSession();
 
   return {
     db,
-    user: session.data.user,
+    session,
     ...opts,
   };
 };
@@ -64,12 +72,20 @@ export const publicProcedure = t.procedure.use(timingMiddleware);
  */
 export const authProcedure = t.procedure
   .use(async (opts) => {
-    if (!opts.ctx.user) {
-      throw new TRPCError({ code: "UNAUTHORIZED" });
+    const sessionUser = opts.ctx.session.user;
+
+    if (isDefined(sessionUser)) {
+      return opts.next({
+        ctx: {
+          ...opts.ctx,
+          session: {
+            ...opts.ctx.session,
+            user: sessionUser,
+          },
+        },
+      });
     }
 
-    return opts.next({
-      ctx: { ...opts.ctx, user: opts.ctx.user },
-    });
+    throw new TRPCError({ code: "UNAUTHORIZED" });
   })
   .use(timingMiddleware);

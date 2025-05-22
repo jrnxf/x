@@ -3,7 +3,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { SESSION_KEY } from "~/lib/keys";
 import { type HausSession } from "~/lib/session";
 
-import { useServerSession } from "~/server/session";
+import { useServerSession } from "~/lib/session";
 
 export const serverFn = createServerFn({ method: "GET" }).handler(
   async (): Promise<HausSession> => {

@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 
 import { z } from "zod";
-import { useServerSession } from "~/server/session";
+import { useServerSession } from "~/lib/session";
 
 const schema = z.string();
 

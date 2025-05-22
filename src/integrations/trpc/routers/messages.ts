@@ -9,7 +9,7 @@ export const messagesRouter = {
   create: authProcedure
     .input(createEditMessageSchema)
     .mutation(async ({ ctx, input }) => {
-      const userId = ctx.user.id;
+      const userId = ctx.session.user.id;
 
       const { content, recordId, type } = input;
 
@@ -125,7 +125,7 @@ export const messagesRouter = {
   update: authProcedure
     .input(createEditMessageSchema)
     .mutation(async ({ ctx, input }) => {
-      const userId = ctx.user.id;
+      const userId = ctx.session.user.id;
 
       const { content, recordId, type } = input;
 

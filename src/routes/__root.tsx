@@ -30,9 +30,7 @@ export const Route = createRootRouteWithContext<RouterAppContext>()({
       context.trpc.session.get.queryOptions(),
     );
 
-    return {
-      session,
-    };
+    return { session };
   },
   component: RootComponent,
   head: () => ({

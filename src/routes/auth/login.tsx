@@ -1,35 +1,44 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { useMutation } from "@tanstack/react-query";
+import {
+  createFileRoute,
+  useNavigate,
+  useSearch,
+} from "@tanstack/react-router";
 import { Loader2Icon } from "lucide-react";
 import { FormProvider, useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { z } from "zod";
 
 import { Button } from "~/components/ui/button";
 import { FormMessage } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
-import { useSendMagicLink } from "~/lib/session";
+import { useTRPC } from "~/integrations/trpc/react";
 import { loginSchema } from "~/models/auth";
+
+const searchParamsSchema = z
+  .object({
+    flash: z.string().optional(),
+    redirect: z.string().optional().default("/auth/me"),
+  })
+  .optional()
+  .default({
+    flash: undefined,
+    redirect: "/auth/me",
+  });
 
 export const Route = createFileRoute("/auth/login")({
   component: RouteComponent,
-  validateSearch: (search) => {
-    return z
-      .object({
-        flash: z.string().optional(),
-        redirect: z.string().optional(),
-      })
-      .optional()
-      .parse(search);
-  },
+  validateSearch: searchParamsSchema,
 });
 
 function RouteComponent() {
+  const search = useSearch({ from: "/auth/login" });
   const form = useForm<z.infer<typeof loginSchema>>({
     defaultValues: {
       email: "",
-      // password: "",
-      redirect: "/",
+      redirect: search.redirect,
     },
     resolver: zodResolver(loginSchema),
   });
@@ -40,7 +49,18 @@ function RouteComponent() {
     register,
   } = form;
 
-  const { data, isPending, mutate } = useSendMagicLink();
+  const trpc = useTRPC();
+
+  const navigate = useNavigate();
+
+  const { mutate, isPending } = useMutation(
+    trpc.email.sendMagicLink.mutationOptions({
+      onSuccess: async () => {
+        toast.success(`Email sent! Check your inbox for a magic link.`);
+        navigate({ to: "/" });
+      },
+    }),
+  );
 
   return (
     <div className="mx-auto w-full max-w-xl p-8" id="main-content">
@@ -50,9 +70,7 @@ function RouteComponent() {
           onSubmit={(event) => {
             event.preventDefault();
             handleSubmit((data) => {
-              mutate({
-                email: data.email,
-              });
+              mutate(data);
             })(event);
           }}
         >

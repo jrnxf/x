@@ -4,11 +4,13 @@ import {
   useNavigate,
   useRouteContext,
   useRouter,
-  useSearch,
 } from "@tanstack/react-router";
-import { toast } from "sonner";
+import { getWebRequest } from "@tanstack/react-start/server";
+import cookie from "cookie";
+import { SignJWT, jwtVerify } from "jose";
 import { z } from "zod";
 import { useTRPC } from "~/integrations/trpc/react";
+import { env } from "~/lib/env";
 
 export const hausSessionSchema = z.object({
   flash: z.string().optional(),
@@ -22,7 +24,29 @@ export const hausSessionSchema = z.object({
     .optional(),
 });
 
+export async function useServerSession(): Promise<HausSession> {
+  const request = getWebRequest();
+  if (request) {
+    const cookieHeader = request.headers.get("cookie");
+    if (cookieHeader) {
+      const cookies = cookie.parse(cookieHeader);
+      const session = await decrypt(cookies.haus);
+
+      const parsedSession = hausSessionSchema.safeParse(session);
+
+      if (parsedSession.success) {
+        return parsedSession.data;
+      }
+    }
+  }
+  return {
+    user: undefined,
+    flash: undefined,
+  };
+}
+
 export type HausSession = z.infer<typeof hausSessionSchema>;
+export type HausSessionUser = HausSession["user"];
 
 export function useSessionUser() {
   const { session } = useRouteContext({ from: rootRouteId });
@@ -65,32 +89,81 @@ export function useLogout() {
   return mutate;
 }
 
-export function useSendMagicLink() {
-  const trpc = useTRPC();
-  const search = useSearch({ from: "/auth/login" });
+const BASE_AUTH_COOKIE = {
+  domain: process.env.VERCEL_PROJECT_PRODUCTION_URL ?? "localhost",
+  httpOnly: true,
+  name: "session",
+  path: "/",
+  sameSite: "lax",
+  secure: true,
+} as const;
 
-  const navigate = useNavigate();
+export async function encrypt(payload: HausSession) {
+  const key = new TextEncoder().encode(env.SESSION_SECRET);
+  return new SignJWT(payload)
+    .setProtectedHeader({ alg: "HS256" })
+    .setIssuedAt()
+    .setExpirationTime("1d")
+    .sign(key);
+}
 
-  // const qc = useQueryClient();
+export async function decrypt(session = "") {
+  const key = new TextEncoder().encode(env.SESSION_SECRET);
+  try {
+    const { payload } = await jwtVerify<HausSession>(session, key, {
+      algorithms: ["HS256"],
+    });
+    return payload;
+  } catch {
+    return null;
+  }
+}
 
-  const sendMagicLinkMutation = useMutation(
-    trpc.email.sendMagicLink.mutationOptions({
-      onSuccess: async (data) => {
-        toast.success("Magic link sent");
-        navigate({ to: "/" });
-        // if (data.success) {
-        //   qc.setQueryData(trpc.session.get.queryKey(), (prev) => ({
-        //     ...prev,
-        //     user: data.sessionUser,
-        //   }));
+export async function createSession(
+  sessionData: HausSession,
+  res: { headers: Headers },
+) {
+  const session = await encrypt(sessionData);
 
-        //   const redirectPath = search?.redirect ?? "/";
+  await setAuthCookie(session, res);
+}
 
-        //   navigate({ to: redirectPath });
-        // }
-      },
+export async function serializeSession(session: string) {
+  const expires = new Date(Date.now() + 60 * 60 * 1000 * 300); // in 1 hour
+
+  const serializedSession = cookie.serialize("haus", session, {
+    ...BASE_AUTH_COOKIE,
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    maxAge: 60 * 60 * 24 * 30,
+    path: "/",
+    expires,
+  });
+
+  return serializedSession;
+}
+
+async function setAuthCookie(session: string, res: { headers: Headers }) {
+  const expires = new Date(Date.now() + 60 * 60 * 1000 * 300); // in 1 hour
+
+  const serializedSession = cookie.serialize("haus", session, {
+    ...BASE_AUTH_COOKIE,
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    maxAge: 60 * 60 * 24 * 30,
+    path: "/",
+    expires,
+  });
+
+  res.headers.set("Set-Cookie", serializedSession);
+}
+
+export async function deleteSession(res: { headers: Headers }) {
+  res.headers.set(
+    "Set-Cookie",
+    cookie.serialize("haus", "", {
+      ...BASE_AUTH_COOKIE,
+      maxAge: 0,
     }),
   );
-
-  return sendMagicLinkMutation;
 }

@@ -13,9 +13,10 @@ function handler({ request }: { request: Request }) {
         // TODO send to sentry
       }
     },
-    createContext: async ({ req }) => {
+    createContext: async ({ req, resHeaders }) => {
       return createTRPCContext({
-        headers: req.headers,
+        req: { headers: req.headers },
+        res: { headers: resHeaders },
       });
     },
   });

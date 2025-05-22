@@ -9,7 +9,7 @@ export const reactionRouter = {
   react: authProcedure
     .input(likeUnlikeSchema)
     .mutation(async ({ ctx, input }) => {
-      const userId = ctx.user.id;
+      const userId = ctx.session.user.id;
 
       const { action, recordId, type } = input;
 

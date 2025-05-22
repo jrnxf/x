@@ -11,7 +11,7 @@ export const timingMiddleware: MiddlewareFn = async (opts) => {
   const durationMs = performance.now() - start;
 
   const source = colors.magenta(
-    opts.ctx.headers.get("x-trpc-source") ?? "unknown",
+    opts.ctx.req.headers.get("x-trpc-source") ?? "unknown",
   );
 
   const path = colors.blue(`${opts.type}.${opts.path}`);

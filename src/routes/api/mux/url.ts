@@ -2,7 +2,7 @@ import { json } from "@tanstack/react-start";
 import { createAPIFileRoute } from "@tanstack/react-start/api";
 
 import { muxClient } from "~/server/clients/mux";
-import { useServerSession } from "~/server/session";
+import { useServerSession } from "~/lib/session";
 
 export const APIRoute = createAPIFileRoute("/api/mux/url")({
   GET: async () => {

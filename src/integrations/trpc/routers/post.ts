@@ -11,7 +11,7 @@ export const postRouter = {
   create: authProcedure
     .input(createUpdatePostSchema)
     .mutation(async ({ ctx, input }) => {
-      const userId = ctx.user.id;
+      const userId = ctx.session.user.id;
 
       if (input.videoUploadId) {
         await ctx.db
@@ -36,7 +36,7 @@ export const postRouter = {
   delete: authProcedure
     .input(z.number())
     .mutation(async ({ ctx, input: postId }) => {
-      const userId = ctx.user.id;
+      const userId = ctx.session.user.id;
       const post = await ctx.db.query.posts.findFirst({
         where: eq(posts.id, postId),
       });
@@ -181,7 +181,7 @@ export const postRouter = {
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const userId = ctx.user.id;
+      const userId = ctx.session.user.id;
       const { postId, ...data } = input;
 
       const [post] = await db

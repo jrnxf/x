@@ -14,7 +14,7 @@ export const gamesRouter = {
   createRiuSet: authProcedure
     .input(createRiuSetSchema)
     .mutation(async ({ ctx, input }) => {
-      const userId = ctx.user.id;
+      const userId = ctx.session.user.id;
 
       if (input.videoUploadId) {
         await ctx.db
@@ -47,7 +47,7 @@ export const gamesRouter = {
   createRiuSubmission: authProcedure
     .input(createRiuSubmissionSchema)
     .mutation(async ({ ctx, input }) => {
-      const userId = ctx.user.id;
+      const userId = ctx.session.user.id;
 
       if (input.videoUploadId) {
         await ctx.db
@@ -92,7 +92,7 @@ export const gamesRouter = {
   deleteRiuSet: authProcedure
     .input(z.number())
     .mutation(async ({ ctx, input }) => {
-      const userId = ctx.user.id;
+      const userId = ctx.session.user.id;
 
       const set = await ctx.db.query.riuSets.findFirst({
         where: eq(riuSets.id, input),
@@ -306,12 +306,12 @@ export const gamesRouter = {
       }
     }
 
+    const isAuthUsersSet = (set: (typeof sets)[number]) => {
+      return ctx.session.user && set.user.id === ctx.session.user.id;
+    };
+
     return {
-      authUserSets: ctx.user
-        ? sets.filter(
-            (set) => set.user && ctx.user && set.user.id === ctx.user.id,
-          )
-        : undefined,
+      authUserSets: ctx.session.user ? sets.filter(isAuthUsersSet) : undefined,
       roster: Object.fromEntries(map),
     };
   }),

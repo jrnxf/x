@@ -27,7 +27,7 @@ export function getFlagEmoji(countryCode: string) {
       const codePoint = char.codePointAt(0);
       return codePoint ? 127_397 + codePoint : undefined;
     })
-    .filter(removeNullish);
+    .filter(isDefined);
 
   return codePoints.length === 2 ? String.fromCodePoint(...codePoints) : "";
 }
@@ -49,7 +49,7 @@ export function preprocessText(text: string) {
   return text.trim().replaceAll(/\n{3,}/g, "\n\n");
 }
 
-export function removeNullish<T>(x: T): x is NonNullable<T> {
+export function isDefined<T>(x: T): x is NonNullable<T> {
   return x !== null && x !== undefined;
 }
 
